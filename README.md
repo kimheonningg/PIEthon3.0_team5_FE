@@ -1,6 +1,15 @@
-# piethon_team5_fe
+# PIEthon3.0_team5_FE
+PIEthon3.0 5팀의 프런트엔드(Flutter) 프로젝트입니다.
+*커밋 메시지 convention은 따로 정해두지 않았습니다!
 
-A new Flutter project.
+# 파일 트리 설명
+### screens
+각 화면에 해당하는 코드들입니다.
+
+### widgets
+공통적으로 사용되는 위젯 모음입니다.
+- gaps.dart : 간격을 나타내는 위젯(SizedBox 이용)
+- maincolors.dart : 색상 정의
 
 ## Getting Started
 
