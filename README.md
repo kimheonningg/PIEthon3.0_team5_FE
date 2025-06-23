@@ -1,6 +1,8 @@
 # PIEthon3.0_team5_FE
 PIEthon3.0 5팀의 프런트엔드(Flutter) 프로젝트입니다.
+*README는 개발 중 계속해서 업데이트하겠습니다.
 *커밋 메시지 convention은 따로 정해두지 않았습니다!
+
 
 # 파일 트리 설명
 ### screens

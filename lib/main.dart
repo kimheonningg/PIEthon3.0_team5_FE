@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:piethon_team5_fe/screens/login/login_screen.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
@@ -26,6 +24,9 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         brightness: Brightness.dark,
         scaffoldBackgroundColor: MainColors.background,
+        textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: Colors.black,
+        ),
       ),
     );
   }
