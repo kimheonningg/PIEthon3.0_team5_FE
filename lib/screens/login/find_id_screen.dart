@@ -63,48 +63,56 @@ class _FindIdScreenState extends State<FindIdScreen> {
                 ),
               ),
               Gaps.v20,
-              TextField(
-                controller: _lastNameController,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16.0,
-                ),
-                decoration: InputDecoration(
-                  hintText: '성',
-                  hintStyle: const TextStyle(
-                    color: MainColors.hinttext,
-                    fontSize: 16.0,
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _lastNameController,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: '성',
+                        hintStyle: const TextStyle(
+                          color: MainColors.hinttext,
+                          fontSize: 16.0,
+                        ),
+                        filled: true,
+                        fillColor: MainColors.textfield,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+                      ),
+                    ),
                   ),
-                  filled: true,
-                  fillColor: MainColors.textfield,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: TextField(
+                      controller: _firstNameController,
+                      style: const TextStyle(
+                        color: MainColors.hinttext,
+                        fontSize: 16.0,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: '이름',
+                        hintStyle: const TextStyle(
+                          color: MainColors.hinttext,
+                          fontSize: 16.0,
+                        ),
+                        filled: true,
+                        fillColor: MainColors.textfield,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+                      ),
+                    ),
                   ),
-                  contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-                ),
-              ),
-              Gaps.v20,
-              TextField(
-                controller: _firstNameController,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16.0,
-                ),
-                decoration: InputDecoration(
-                  hintText: '이름',
-                  hintStyle: const TextStyle(
-                    color: MainColors.hinttext,
-                    fontSize: 16.0,
-                  ),
-                  filled: true,
-                  fillColor: MainColors.textfield,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-                ),
+                ],
               ),
               Gaps.v20,
               GestureDetector(
