@@ -14,6 +14,8 @@ class FindIdScreen extends StatefulWidget {
   State<FindIdScreen> createState() => _FindIdScreenState();
 }
 
+String? _foundUserId;
+
 class _FindIdScreenState extends State<FindIdScreen> {
   final TextEditingController _phoneNumController = TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
@@ -121,6 +123,23 @@ class _FindIdScreenState extends State<FindIdScreen> {
                         headers: {"Content-Type": "application/json"},
                         body: jsonEncode(body),
                     );
+
+                    if (response.statusCode == 200) {
+                        final responseData = jsonDecode(response.body);
+                        if (responseData["success"] == true) {
+                        setState(() {
+                            _foundUserId = '아이디는 ${responseData["userId"]} 입니다.';
+                        });
+                        } else {
+                        setState(() {
+                            _foundUserId = '아이디를 찾을 수 없습니다.';
+                        });
+                        }
+                    } else {
+                        setState(() {
+                        _foundUserId = '아이디를 찾을 수 없습니다.';
+                        });
+                    }
                 },
                 child: Container(
                   width: 480,
@@ -133,7 +152,7 @@ class _FindIdScreenState extends State<FindIdScreen> {
                   ),
                   child: const Center(
                     child: Text(
-                      '재설정하기',
+                      '아이디 찾기',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white,
@@ -145,6 +164,16 @@ class _FindIdScreenState extends State<FindIdScreen> {
                   ),
                 ),
               ),
+              if(_foundUserId != null) ...[
+                Gaps.v20,
+                Text(
+                    '$_foundUserId',
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0,
+                    ),
+                )
+              ]
             ],
           ),
         ),
