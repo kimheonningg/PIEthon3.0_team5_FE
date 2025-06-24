@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:piethon_team5_fe/const.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -109,8 +112,43 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             Gaps.v16,
             GestureDetector(
-              onTap: () {
-                print("버튼눌렸다~~");
+              onTap: () async {
+                print('버튼눌렸다~~');
+                final userId = _idController.text.trim();
+                final password = _passwordController.text.trim();
+
+                if (userId.isEmpty || password.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("아이디와 비밀번호를 모두 입력해주세요.")),
+                  );
+                  return;
+                }
+
+                try {
+                  final res = await http.post(
+                    Uri.parse('$BASE_URL_DEV/login'),
+                    headers: {'Content-Type': 'application/json'},
+                    body: jsonEncode({
+                      'userId': userId,
+                      'password': password,
+                    }),
+                  );
+
+                  if (res.statusCode == 200) {
+                    final data = jsonDecode(res.body);
+                    print("로그인 성공: $data");
+                  } else {
+                    print("로그인 실패: ${res.statusCode}");
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("로그인 실패. 아이디 또는 비밀번호를 확인하세요.")),
+                    );
+                  }
+                } catch (e) {
+                  print("에러 발생: $e");
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("서버와 통신 중 오류가 발생했습니다.")),
+                  );
+                }
               },
               child: Container(
                 width: 160,

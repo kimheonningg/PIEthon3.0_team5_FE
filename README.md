@@ -33,6 +33,7 @@ flutter doctor # flutter doctor -v
 Run by:
 
 ```bash
+flutter pub get # if needed
 flutter run
 ```
 
