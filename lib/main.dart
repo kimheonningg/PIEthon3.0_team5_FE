@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:piethon_team5_fe/screens/login/login_screen.dart';
+import 'package:piethon_team5_fe/screens/register/register_screen.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
 
 void main() {

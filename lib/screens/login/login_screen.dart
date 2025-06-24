@@ -8,6 +8,8 @@ import 'package:piethon_team5_fe/widgets/maincolors.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:piethon_team5_fe/const.dart';
+import 'package:piethon_team5_fe/screens/register/register_screen.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -209,7 +211,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                    );
+                  },
                   child: const Text(
                     '회원가입하기',
                     textAlign: TextAlign.center,
