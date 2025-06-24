@@ -72,6 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
             //비밀번호 입력 칸
             TextField(
               controller: _passwordController,
+              obscureText: true,
               // 입력 텍스트 스타일
               style: const TextStyle(
                 color: Colors.white, // 입력되는 글자색
