@@ -126,7 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 try {
                   final res = await http.post(
-                    Uri.parse('$BASE_URL_DEV/login'),
+                    Uri.parse('$BASE_URL/login'),
                     headers: {'Content-Type': 'application/json'},
                     body: jsonEncode({
                       'userId': userId,
