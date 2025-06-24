@@ -25,7 +25,7 @@ class _MyAppState extends State<MyApp> {
         brightness: Brightness.dark,
         scaffoldBackgroundColor: MainColors.background,
         textSelectionTheme: const TextSelectionThemeData(
-          cursorColor: Colors.black,
+          cursorColor: Colors.white,
         ),
       ),
     );

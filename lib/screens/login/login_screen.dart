@@ -26,94 +26,78 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Center(
-      child: Container(
+      child: SizedBox(
         width: 480,
-        height: 360,
-        decoration: ShapeDecoration(
-          color: MainColors.window,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          shadows: const [
-            BoxShadow(
-              color: Color(0x3F000000),
-              blurRadius: 4,
-              offset: Offset(0, 4),
-              spreadRadius: 0,
-            )
-          ],
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 32),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Gaps.v10,
             const Text(
               '로그인',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.black,
-                fontSize: 36,
+                color: Colors.white,
+                fontSize: 28,
                 fontWeight: FontWeight.w700,
               ),
             ),
-            Gaps.v20,
+            Gaps.v36,
             //아이디 박스
             TextField(
               controller: _idController,
               // 입력 텍스트 스타일
               style: const TextStyle(
-                color: Colors.black87, // 입력되는 글자색
+                color: Colors.white, // 입력되는 글자색
                 fontSize: 16.0,
               ),
               decoration: InputDecoration(
-                hintText: '아이디',
+                hintText: '아이디를 입력해주세요',
                 hintStyle: const TextStyle(
-                  color: Colors.black87, // 힌트 텍스트 색상
+                  color: MainColors.hinttext, // 힌트 텍스트 색상
                   fontSize: 16.0,
                 ),
                 filled: true,
-                fillColor: const Color(0xFFF3F3F3),
+                fillColor: MainColors.textfield,
 
                 // 테두리 설정 (둥근 모서리)
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
+                  borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none,
                 ),
                 // 내부 패딩
                 contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
               ),
             ),
-            Gaps.v16,
+            Gaps.v20,
             //비밀번호 입력 칸
             TextField(
-              obscureText: true,
               controller: _passwordController,
+              // 입력 텍스트 스타일
               style: const TextStyle(
-                color: Colors.black87, // 입력되는 글자색
+                color: Colors.white, // 입력되는 글자색
                 fontSize: 16.0,
               ),
               decoration: InputDecoration(
-                hintText: '비밀번호',
+                hintText: '비밀번호를 입력해주세요',
                 hintStyle: const TextStyle(
-                  color: Colors.black87, // 힌트 텍스트 색상
+                  color: MainColors.hinttext, // 힌트 텍스트 색상
                   fontSize: 16.0,
                 ),
                 filled: true,
-                fillColor: const Color(0xFFF3F3F3),
+                fillColor: MainColors.textfield,
 
                 // 테두리 설정 (둥근 모서리)
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
+                  borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none,
                 ),
                 // 내부 패딩
                 contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
               ),
             ),
-            Gaps.v16,
+            Gaps.v20,
             GestureDetector(
               onTap: () async {
-                print('버튼눌렸다~~');
                 final userId = _idController.text.trim();
                 final password = _passwordController.text.trim();
 
@@ -151,27 +135,31 @@ class _LoginScreenState extends State<LoginScreen> {
                 }
               },
               child: Container(
-                width: 160,
+                width: 480,
                 height: 48,
                 decoration: ShapeDecoration(
-                  color: const Color(0xFFACB2BC),
+                  color: MainColors.button,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  shadows: const [
-                    BoxShadow(
-                      color: Color(0x3F000000),
-                      blurRadius: 4,
-                      offset: Offset(0, 4),
-                      spreadRadius: 0,
-                    )
-                  ],
+                ),
+                child: const Center(
+                  child: Text(
+                    '로그인하기',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ),
             ),
             Gaps.v12,
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 GestureDetector(
                   onTap: () {},
@@ -179,8 +167,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     '아이디 찾기',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
+                      color: Colors.white,
+                      fontSize: 12,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w400,
                     ),
@@ -190,8 +178,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ' | ',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 14,
+                    color: Colors.white,
+                    fontSize: 12,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w400,
                   ),
@@ -202,8 +190,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     '비밀번호 재설정',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
+                      color: Colors.white,
+                      fontSize: 12,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w400,
                     ),
@@ -213,8 +201,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ' | ',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 14,
+                    color: Colors.white,
+                    fontSize: 12,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w400,
                   ),
@@ -225,8 +213,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     '회원가입하기',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
+                      color: Colors.white,
+                      fontSize: 12,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w400,
                     ),
