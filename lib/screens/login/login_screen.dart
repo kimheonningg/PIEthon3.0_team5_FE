@@ -10,7 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:piethon_team5_fe/const.dart';
 import 'package:piethon_team5_fe/screens/register/register_screen.dart';
 import 'package:piethon_team5_fe/screens/login/change_pw_screen.dart';
-
+import 'package:piethon_team5_fe/screens/login/find_id_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -166,7 +166,12 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const FindIdScreen()),
+                    );
+                  },
                   child: const Text(
                     '아이디 찾기',
                     textAlign: TextAlign.center,
