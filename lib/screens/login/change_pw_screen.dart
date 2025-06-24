@@ -7,21 +7,19 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:piethon_team5_fe/const.dart';
 
-class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+class ChangePwScreen extends StatefulWidget {
+  const ChangePwScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  State<ChangePwScreen> createState() => _ChangePwScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
-  final TextEditingController _emailController = TextEditingController();
+class _ChangePwScreenState extends State<ChangePwScreen> {
   final TextEditingController _phoneNumController = TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
-  final TextEditingController _idController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _positionController = TextEditingController();
+  final TextEditingController _originalPwController = TextEditingController();
+  final TextEditingController _newPwController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +32,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             children: [
               Gaps.v10,
               const Text(
-                '회원가입',
+                '비밀번호 재설정',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
@@ -43,28 +41,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               Gaps.v36,
-              TextField(
-                controller: _emailController,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16.0,
-                ),
-                decoration: InputDecoration(
-                  hintText: '이메일',
-                  hintStyle: const TextStyle(
-                    color: MainColors.hinttext,
-                    fontSize: 16.0,
-                  ),
-                  filled: true,
-                  fillColor: MainColors.textfield,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-                ),
-              ),
-              Gaps.v20,
               TextField(
                 controller: _phoneNumController,
                 style: const TextStyle(
@@ -132,13 +108,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               Gaps.v20,
               TextField(
-                controller: _idController,
+                controller: _originalPwController,
+                obscureText: true,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16.0,
                 ),
                 decoration: InputDecoration(
-                  hintText: '아이디',
+                  hintText: '기존 비밀번호',
                   hintStyle: const TextStyle(
                     color: MainColors.hinttext,
                     fontSize: 16.0,
@@ -154,14 +131,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               Gaps.v20,
               TextField(
-                controller: _passwordController,
+                controller: _newPwController,
                 obscureText: true,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16.0,
                 ),
                 decoration: InputDecoration(
-                  hintText: '비밀번호',
+                  hintText: '새로운 비밀번호',
                   hintStyle: const TextStyle(
                     color: MainColors.hinttext,
                     fontSize: 16.0,
@@ -177,42 +154,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               Gaps.v20,
               GestureDetector(
-                onTap: () async {
-                  final url = Uri.parse('$BASE_URL/register');
-                  final body = {
-                    "email": _emailController.text,
-                    "phoneNum": _phoneNumController.text,
-                    "name": {
-                      "firstName": _firstNameController.text,
-                      "lastName": _lastNameController.text,
-                    },
-                    "userId": _idController.text,
-                    "password": _passwordController.text,
-                    "position": "doctor",
-                  };
-                  try {
-                    final response = await http.post(
-                      url,
-                      headers: {'Content-Type': 'application/json'},
-                      body: jsonEncode(body),
-                    );
-
-                    if (response.statusCode == 200 || response.statusCode == 201) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('회원가입 성공')),
-                      );
-                      Navigator.pop(context); 
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('회원가입 실패: ${response.body}')),
-                      );
-                    }
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('에러 발생: $e')),
-                    );
-                  }
-                },
+                onTap: () async {},
                 child: Container(
                   width: 480,
                   height: 48,
@@ -224,7 +166,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   child: const Center(
                     child: Text(
-                      '회원가입하기',
+                      '재설정하기',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white,

@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:piethon_team5_fe/const.dart';
 import 'package:piethon_team5_fe/screens/register/register_screen.dart';
+import 'package:piethon_team5_fe/screens/login/change_pw_screen.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -188,7 +189,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ChangePwScreen()),
+                    );
+                  },
                   child: const Text(
                     '비밀번호 재설정',
                     textAlign: TextAlign.center,
