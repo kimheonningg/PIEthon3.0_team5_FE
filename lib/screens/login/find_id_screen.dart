@@ -30,7 +30,30 @@ class _FindIdScreenState extends State<FindIdScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Gaps.v10,
+              const SizedBox(height: 60),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(Icons.arrow_back_ios, color: Colors.white, size: 18),
+                      Text(
+                        '이전으로',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Gaps.v20,
               const Text(
                 '아이디 찾기',
                 textAlign: TextAlign.center,
@@ -93,7 +116,7 @@ class _FindIdScreenState extends State<FindIdScreen> {
                     child: TextField(
                       controller: _firstNameController,
                       style: const TextStyle(
-                        color: MainColors.hinttext,
+                        color: Colors.white,
                         fontSize: 16.0,
                       ),
                       decoration: InputDecoration(
@@ -117,37 +140,37 @@ class _FindIdScreenState extends State<FindIdScreen> {
               Gaps.v20,
               GestureDetector(
                 onTap: () async {
-                    final url = Uri.parse('$BASE_URL/find_id');
-                    final body = {
-                        "phoneNum": _phoneNumController.text,
-                        "name": {
-                            "firstName": _firstNameController.text,
-                            "lastName": _lastNameController.text,
-                        },
-                    };
+                  final url = Uri.parse('$BASE_URL/find_id');
+                  final body = {
+                    "phoneNum": _phoneNumController.text,
+                    "name": {
+                      "firstName": _firstNameController.text,
+                      "lastName": _lastNameController.text,
+                    },
+                  };
 
-                    final response = await http.post(
-                        url,
-                        headers: {"Content-Type": "application/json"},
-                        body: jsonEncode(body),
-                    );
+                  final response = await http.post(
+                    url,
+                    headers: {"Content-Type": "application/json"},
+                    body: jsonEncode(body),
+                  );
 
-                    if (response.statusCode == 200) {
-                        final responseData = jsonDecode(response.body);
-                        if (responseData["success"] == true) {
-                        setState(() {
-                            _foundUserId = '아이디는 ${responseData["userId"]} 입니다.';
-                        });
-                        } else {
-                        setState(() {
-                            _foundUserId = '아이디를 찾을 수 없습니다.';
-                        });
-                        }
+                  if (response.statusCode == 200) {
+                    final responseData = jsonDecode(response.body);
+                    if (responseData["success"] == true) {
+                      setState(() {
+                        _foundUserId = '아이디는 ${responseData["userId"]} 입니다.';
+                      });
                     } else {
-                        setState(() {
+                      setState(() {
                         _foundUserId = '아이디를 찾을 수 없습니다.';
-                        });
+                      });
                     }
+                  } else {
+                    setState(() {
+                      _foundUserId = '아이디를 찾을 수 없습니다.';
+                    });
+                  }
                 },
                 child: Container(
                   width: 480,
@@ -172,14 +195,14 @@ class _FindIdScreenState extends State<FindIdScreen> {
                   ),
                 ),
               ),
-              if(_foundUserId != null) ...[
+              if (_foundUserId != null) ...[
                 Gaps.v20,
                 Text(
-                    '$_foundUserId',
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.0,
-                    ),
+                  '$_foundUserId',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.0,
+                  ),
                 )
               ]
             ],

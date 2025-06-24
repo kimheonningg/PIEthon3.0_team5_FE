@@ -30,7 +30,30 @@ class _ChangePwScreenState extends State<ChangePwScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Gaps.v10,
+              const SizedBox(height: 60),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(Icons.arrow_back_ios, color: Colors.white, size: 18),
+                      Text(
+                        '이전으로',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Gaps.v20,
               const Text(
                 '비밀번호 재설정',
                 textAlign: TextAlign.center,
@@ -93,7 +116,7 @@ class _ChangePwScreenState extends State<ChangePwScreen> {
                     child: TextField(
                       controller: _firstNameController,
                       style: const TextStyle(
-                        color: MainColors.hinttext,
+                        color: Colors.white,
                         fontSize: 16.0,
                       ),
                       decoration: InputDecoration(
@@ -163,33 +186,33 @@ class _ChangePwScreenState extends State<ChangePwScreen> {
               Gaps.v20,
               GestureDetector(
                 onTap: () async {
-                    final url = Uri.parse('$BASE_URL/change_pw');
-                    final body = {
-                        "userId": _userIdController.text,
-                        "name": {
-                            "firstName": _firstNameController.text,
-                            "lastName": _lastNameController.text,
-                        },
-                        "originalPw": _originalPwController.text,
-                        "newPw": _newPwController.text,
-                    };
+                  final url = Uri.parse('$BASE_URL/change_pw');
+                  final body = {
+                    "userId": _userIdController.text,
+                    "name": {
+                      "firstName": _firstNameController.text,
+                      "lastName": _lastNameController.text,
+                    },
+                    "originalPw": _originalPwController.text,
+                    "newPw": _newPwController.text,
+                  };
 
-                    final response = await http.post(
-                        url,
-                        headers: {"Content-Type": "application/json"},
-                        body: jsonEncode(body),
+                  final response = await http.post(
+                    url,
+                    headers: {"Content-Type": "application/json"},
+                    body: jsonEncode(body),
+                  );
+
+                  if (response.statusCode == 200) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('비밀번호가 변경되었습니다.')),
                     );
-
-                    if (response.statusCode == 200) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('비밀번호가 변경되었습니다.')),
-                        );
-                        Navigator.pop(context);
-                    } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('실패: ${response.body}')),
-                        );
-                    }
+                    Navigator.pop(context);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('실패: ${response.body}')),
+                    );
+                  }
                 },
                 child: Container(
                   width: 480,
