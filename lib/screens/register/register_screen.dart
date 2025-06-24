@@ -178,6 +178,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
               Gaps.v20,
               GestureDetector(
                 onTap: () async {
+                  final url = Uri.parse('$BASE_URL/register');
+                  final body = {
+                    "email": _emailController.text,
+                    "phoneNum": _phoneNumController.text,
+                    "name": {
+                      "firstName": _firstNameController.text,
+                      "lastName": _lastNameController.text,
+                    },
+                    "userId": _idController.text,
+                    "password": _passwordController.text,
+                    "position": "doctor",
+                  };
+                  try {
+                    final response = await http.post(
+                      url,
+                      headers: {'Content-Type': 'application/json'},
+                      body: jsonEncode(body),
+                    );
+
+                    if (response.statusCode == 200 || response.statusCode == 201) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('회원가입 성공')),
+                      );
+                      Navigator.pop(context); 
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('회원가입 실패: ${response.body}')),
+                      );
+                    }
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('에러 발생: $e')),
+                    );
+                  }
                 },
                 child: Container(
                   width: 480,
