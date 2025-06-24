@@ -15,7 +15,7 @@ class ChangePwScreen extends StatefulWidget {
 }
 
 class _ChangePwScreenState extends State<ChangePwScreen> {
-  final TextEditingController _phoneNumController = TextEditingController();
+  final TextEditingController _userIdController = TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _originalPwController = TextEditingController();
@@ -42,13 +42,13 @@ class _ChangePwScreenState extends State<ChangePwScreen> {
               ),
               Gaps.v36,
               TextField(
-                controller: _phoneNumController,
+                controller: _userIdController,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16.0,
                 ),
                 decoration: InputDecoration(
-                  hintText: '전화번호',
+                  hintText: '아이디',
                   hintStyle: const TextStyle(
                     color: MainColors.hinttext,
                     fontSize: 16.0,
@@ -154,7 +154,35 @@ class _ChangePwScreenState extends State<ChangePwScreen> {
               ),
               Gaps.v20,
               GestureDetector(
-                onTap: () async {},
+                onTap: () async {
+                    final url = Uri.parse('$BASE_URL/change_pw');
+                    final body = {
+                        "userId": _userIdController.text,
+                        "name": {
+                            "firstName": _firstNameController.text,
+                            "lastName": _lastNameController.text,
+                        },
+                        "originalPw": _originalPwController.text,
+                        "newPw": _newPwController.text,
+                    };
+
+                    final response = await http.post(
+                        url,
+                        headers: {"Content-Type": "application/json"},
+                        body: jsonEncode(body),
+                    );
+
+                    if (response.statusCode == 200) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('비밀번호가 변경되었습니다.')),
+                        );
+                        Navigator.pop(context);
+                    } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('실패: ${response.body}')),
+                        );
+                    }
+                },
                 child: Container(
                   width: 480,
                   height: 48,
