@@ -21,7 +21,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _positionController = TextEditingController();
+  final TextEditingController _licenceNumController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -163,6 +163,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               Gaps.v20,
               TextField(
+                controller: _licenceNumController,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16.0,
+                ),
+                decoration: InputDecoration(
+                  hintText: '의사면허번호',
+                  hintStyle: const TextStyle(
+                    color: MainColors.hinttext,
+                    fontSize: 16.0,
+                  ),
+                  filled: true,
+                  fillColor: MainColors.textfield,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+                ),
+              ),
+              Gaps.v20,
+              TextField(
                 controller: _idController,
                 style: const TextStyle(
                   color: Colors.white,
@@ -220,6 +242,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     "userId": _idController.text,
                     "password": _passwordController.text,
                     "position": "doctor",
+                    "licenceNum": _licenceNumController.text
                   };
                   try {
                     final response = await http.post(
