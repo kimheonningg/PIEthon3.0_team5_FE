@@ -167,10 +167,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const FindIdScreen()),
-                    );
+                    Navigator.pushNamed(context, '/login/findID');
                   },
                   child: const Text(
                     '아이디 찾기',
@@ -195,10 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const ChangePwScreen()),
-                    );
+                    Navigator.pushNamed(context, '/login/changePW');
                   },
                   child: const Text(
                     '비밀번호 재설정',
@@ -223,10 +217,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const RegisterScreen()),
-                    );
+                    Navigator.pushNamed(context, '/login/findID');
                   },
                   child: const Text(
                     '회원가입하기',

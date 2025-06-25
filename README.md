@@ -22,7 +22,16 @@ PIEthon3.0 5팀의 프런트엔드(Flutter) 프로젝트입니다.
 - API 연결 관련 함수들 모음
 - 그 외 필요한 함수들은 여기에 저장합니다
 
-## Getting Started
+## provider
+상태 관리에는 provider를 사용하기로 결정했습니다. 
+이 디렉토리에 provider 코드를 작성하시면 됩니다. 
+
+# Route 관련
+- 경로 이름이 필요한 스크린의 경우 main.dart의 MaterialApp에 경로 이름(routes)을 등록한 다음 pushNamed를 이용하여 화면을 전환하도록 구현하고, 
+별도의 경로 이름을 지정할 필요 없이 그냥 위로 쌓아도 되는 경우에는 push를 이용해서 화면을 전환하도록 구현하시면 됩니다. 
+- MaterialApp의 routes에 들어가는 각각의 경로 이름에는 간단한 주석을 함께 달아 주세요.
+
+# Getting Started
 
 Check requirements by:
 

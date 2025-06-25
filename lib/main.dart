@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:piethon_team5_fe/screens/login/change_pw_screen.dart';
+import 'package:piethon_team5_fe/screens/login/find_id_screen.dart';
 import 'package:piethon_team5_fe/screens/login/login_screen.dart';
 import 'package:piethon_team5_fe/screens/register/register_screen.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
@@ -22,6 +24,12 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'PIEthon3.0 team5',
       home: const LoginScreen(),
+      initialRoute: "/login",
+      routes: {
+        '/login/register': (context) => const RegisterScreen(), //회원가입 화면
+        '/login/findID': (context) => const FindIdScreen(), //ID 찾기 화면
+        '/login/changePW': (context) => const ChangePwScreen(), //비밀번호 재설정 화면
+      },
       theme: ThemeData(
         brightness: Brightness.dark,
         scaffoldBackgroundColor: MainColors.background,

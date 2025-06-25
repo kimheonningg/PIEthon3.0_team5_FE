@@ -39,9 +39,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   onTap: () {
                     Navigator.pop(context);
                   },
-                  child: Row(
+                  child: const Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
+                    children: [
                       Icon(Icons.arrow_back_ios, color: Colors.white, size: 18),
                       Text(
                         '이전으로',
@@ -255,7 +255,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('회원가입 성공')),
                       );
-                      Navigator.pop(context); 
+                      Navigator.pop(context);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('회원가입 실패: ${response.body}')),
