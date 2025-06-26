@@ -125,10 +125,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   if (res.statusCode == 200) {
                     final data = jsonDecode(res.body);
                     print("로그인 성공: $data");
+                    //로그인 성공 시 PatientsScreen으로 이동
+                    Navigator.pushNamed(context, '/patients');
                   } else {
                     print("로그인 실패: ${res.statusCode}");
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("로그인 실패. 아이디 또는 비밀번호를 확인하세요.")),
+                      const SnackBar(
+                          content: Text("로그인 실패. 아이디 또는 비밀번호를 확인하세요.")),
                     );
                   }
                 } catch (e) {
