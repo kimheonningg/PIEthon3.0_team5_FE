@@ -26,6 +26,7 @@ class _MyAppState extends State<MyApp> {
       home: const LoginScreen(),
       initialRoute: "/login",
       routes: {
+        '/login': (context) => const LoginScreen(), //로그인 화면
         '/login/register': (context) => const RegisterScreen(), //회원가입 화면
         '/login/findID': (context) => const FindIdScreen(), //ID 찾기 화면
         '/login/changePW': (context) => const ChangePwScreen(), //비밀번호 재설정 화면
