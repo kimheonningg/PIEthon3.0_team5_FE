@@ -18,6 +18,19 @@ class _PatientsScreenState extends State<PatientsScreen> {
   List<Map<String, dynamic>> _patientsInfo = [];
   bool _loading = true;
 
+  static const int _pageSize = 8;
+
+  int get _totalPages => // page 개수 동적으로 조절
+      (_patientsInfo.length + _pageSize - 1) ~/ _pageSize;
+
+  int _currentPage = 1; // 1페이지부터 보여준다
+
+  List<Map<String, dynamic>> get _pageSlice {
+    final start = (_currentPage - 1) * _pageSize;
+    final end = (start + _pageSize).clamp(0, _patientsInfo.length);
+    return _patientsInfo.sublist(start, end);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -46,7 +59,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
           final first = nameMap['firstName'] ?? '';
           final last = nameMap['lastName'] ?? '';
           return {
-            'name': '$last $first', // lastName first
+            'name': '$last $first',
             'patientId': p['patientId'] ?? '',
             'phoneNum': p['phoneNum'] ?? '',
             'doctorCnt': (p['doctorId'] as List).length,
@@ -177,7 +190,8 @@ class _PatientsScreenState extends State<PatientsScreen> {
                     children: [
                       Row(
                         children: [
-                          const Text('156 patients', style: TextStyle(color: MainColors.sidebarNameText)),
+                          Text('${_patientsInfo.length} patient ${_patientsInfo.length == 1 ? '' : 's'}',
+                              style: TextStyle(color: Colors.grey[400])),
                           const SizedBox(width: 16),
                           OutlinedButton.icon(
                             onPressed: _loadPatients,
@@ -247,10 +261,16 @@ class _PatientsScreenState extends State<PatientsScreen> {
                 Gaps.v24,
                 // 환자 목록 테이블 (Expanded로 남는 공간을 모두 채움)
                 Expanded(
-                  child: PatientTable(data: _patientsInfo),
+                  child: PatientTable(data: _pageSlice),
                 ),
                 // 4. 페이지네이션
-                const Pagination(),
+                Pagination(
+                  totalPages: _totalPages,
+                  currentPage: _currentPage,
+                  onPageSelected: (p) => setState(() => _currentPage = p),
+                  totalItems: _patientsInfo.length,
+                  pageSize: _pageSize,
+                ),
               ],
             ),
           )
@@ -351,35 +371,63 @@ class PatientTable extends StatelessWidget {
 
 // 하단 페이지 번호들
 class Pagination extends StatelessWidget {
-  const Pagination({super.key});
+  final int totalPages;
+  final int currentPage;
+  final int totalItems;
+  final int pageSize;
+  final void Function(int) onPageSelected;
+
+  const Pagination({
+    super.key,
+    required this.totalPages,
+    required this.currentPage,
+    required this.onPageSelected,
+    required this.totalItems,
+    required this.pageSize,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final start = (currentPage - 1) * pageSize + 1;
+    final end = (currentPage * pageSize).clamp(1, totalItems);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text('Showing 1-8 of 156 patients', style: TextStyle(color: Colors.grey[400])),
+        Text('Showing $start-$end of $totalItems patient${totalItems == 1 ? '' : 's'}',
+            style: TextStyle(color: Colors.grey[400])),
         Row(
           children: [
-            TextButton(onPressed: () {}, child: const Text('< Previous')),
+            TextButton(
+                onPressed: currentPage > 1 ? () => onPageSelected(currentPage - 1) : null, child: const Text('< Previous')),
             // 페이지 번호 버튼들
-            _buildPageButton('1', isSelected: true),
-            _buildPageButton('2'),
-            _buildPageButton('3'),
-            const Text('...', style: TextStyle(color: Colors.white)),
-            _buildPageButton('20'),
-            TextButton(onPressed: () {}, child: const Text('Next >')),
+            ...List.generate(totalPages, (i) {
+              final pageNum = i + 1;
+              return _buildPageButton(
+                '$pageNum',
+                isSelected: pageNum == currentPage,
+                onTap: () => onPageSelected(pageNum),
+              );
+            }),
+            TextButton(
+              onPressed: currentPage < totalPages ? () => onPageSelected(currentPage + 1) : null,
+              child: const Text('Next >'),
+            ),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildPageButton(String text, {bool isSelected = false}) {
+  Widget _buildPageButton(
+    String text, {
+    bool isSelected = false,
+    required VoidCallback onTap,
+  }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       child: TextButton(
-        onPressed: () {},
+        onPressed: onTap,
         style: TextButton.styleFrom(
           backgroundColor: isSelected ? const Color(0xFF3A65E5) : Colors.transparent,
           foregroundColor: Colors.white,
