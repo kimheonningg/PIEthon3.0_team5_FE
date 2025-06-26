@@ -56,15 +56,15 @@ class _PatientsScreenState extends State<PatientsScreen> {
         final raw = List<Map<String, dynamic>>.from(json['patients']);
         final mapped = raw.map((p) {
           final nameMap = p['name'] as Map<String, dynamic>? ?? {};
-          final first = nameMap['firstName'] ?? '';
-          final last = nameMap['lastName'] ?? '';
+          final first = nameMap['first_name'] ?? '';
+          final last = nameMap['last_name'] ?? '';
           return {
             'name': '$last $first',
-            'patientId': p['patientId'] ?? '',
-            'phoneNum': p['phoneNum'] ?? '',
-            'doctorCnt': (p['doctorId'] as List).length,
-            'noteCnt': (p['medicalNotes'] as List).length,
-            'createdAt': p['createdAt'] ?? '',
+            'patientId': p['patient_id'] ?? '',
+            'phoneNum': p['phone_num'] ?? '',
+            'doctorCnt': (p['doctor_id'] as List).length,
+            'noteCnt': (p['medical_notes'] as List).length,
+            'createdAt': p['created_at'] ?? '',
           };
         }).toList();
         setState(() {

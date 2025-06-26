@@ -113,9 +113,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 try {
                   final res = await http.post(
-                    Uri.parse('$BASE_URL/login'),
+                    Uri.parse('$BASE_URL/auth/login'),
                     headers: {'Content-Type': 'application/json'},
-                    body: jsonEncode({'userId': userId, 'password': password}),
+                    body: jsonEncode({'user_id': userId, 'password': password}),
                   );
 
                   if (res.statusCode == 200) {
@@ -130,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     await TokenManager.saveAccessToken(token);
 
                     final userInfoRes = await http.get(
-                      Uri.parse('$BASE_URL/user_info'),
+                      Uri.parse('$BASE_URL/auth/user_info'),
                       headers: {'Authorization': 'Bearer $token'},
                     );
 

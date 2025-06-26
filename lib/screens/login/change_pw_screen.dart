@@ -186,15 +186,15 @@ class _ChangePwScreenState extends State<ChangePwScreen> {
               Gaps.v20,
               GestureDetector(
                 onTap: () async {
-                  final url = Uri.parse('$BASE_URL/change_pw');
+                  final url = Uri.parse('$BASE_URL/auth/change_pw');
                   final body = {
-                    "userId": _userIdController.text,
+                    "user_id": _userIdController.text,
                     "name": {
-                      "firstName": _firstNameController.text,
-                      "lastName": _lastNameController.text,
+                      "first_name": _firstNameController.text,
+                      "last_name": _lastNameController.text,
                     },
-                    "originalPw": _originalPwController.text,
-                    "newPw": _newPwController.text,
+                    "original_pw": _originalPwController.text,
+                    "new_pw": _newPwController.text,
                   };
 
                   final response = await http.post(
