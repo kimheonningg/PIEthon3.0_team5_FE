@@ -253,17 +253,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                     if (response.statusCode == 200 || response.statusCode == 201) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('회원가입 성공')),
+                        const SnackBar(content: Text('Registered successfully.')),
                       );
                       Navigator.pop(context);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('회원가입 실패: ${response.body}')),
+                        SnackBar(content: Text('Error in registering: ${response.body}')),
                       );
                     }
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('에러 발생: $e')),
+                      SnackBar(content: Text('Error in registering: $e')),
                     );
                   }
                 },

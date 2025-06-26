@@ -1,7 +1,10 @@
 // Navigation Sidebar 위젯
+import 'dart:convert' as convert; 
 import 'package:flutter/material.dart';
 import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
+import 'package:piethon_team5_fe/functions/token_manager.dart';
+import 'package:piethon_team5_fe/functions/user_info_manager.dart';
 
 class SideNavigationBar extends StatefulWidget {
   const SideNavigationBar({super.key});
@@ -14,6 +17,61 @@ class _SideNavigationBarState extends State<SideNavigationBar> {
   // 현재 선택된 메뉴의 인덱스를 저장하는 변수
   // 0: Patients, 1: Schedule, ..., 4: Settings, 5: Help
   int _selectedIndex = 0;
+
+  String _displayName = 'name';
+  String _displayRole = 'role';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+
+  Future<void> _loadProfile() async {
+    try {
+      final info = await UserInfoManager.load();
+      if (info != null) {
+        final first = info['first_name'] ?? '';
+        final last  = info['last_name']  ?? '';
+        final role  = info['position']  ?? '';
+
+        setState(() {
+          _displayName = [last, first].where((s) => s.isNotEmpty).join(' ');
+          _displayRole = role;
+        });
+
+        return;
+      }
+      // 백업용
+      final token = await TokenManager.getAccessToken();
+      if (token == null || token.isEmpty) return;
+
+      final parts = token.split('.');
+      if (parts.length != 3) return;
+      final payload = convert.utf8.decode(
+        convert.base64Url.decode(_padBase64(parts[1])),
+      );
+      final data   = convert.jsonDecode(payload) as Map<String, dynamic>;
+
+      final first = data['first_name'] ?? '';
+      final last  = data['last_name']  ?? '';
+      final role  = data['position']  ??'';
+
+      setState(() {
+        _displayName = [last, first].where((s) => s.isNotEmpty).join(' ');
+        _displayRole = role;
+      });
+    } catch (e) {
+      print('프로필 로드 실패: $e');
+    }
+  }
+
+  String _padBase64(String input) {
+    final mod = input.length % 4;
+    if (mod == 0) return input;
+    return input + '=' * (4 - mod);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,11 +153,39 @@ class _SideNavigationBarState extends State<SideNavigationBar> {
             height: 1,
             color: const Color(0xFF374151),
           ),
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              "멋진 로그인 정보",
-              style: TextStyle(fontSize: 20),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 24,
+                  backgroundColor: MainColors.userProfile,
+                  child: const Icon(Icons.person,
+                      color: Colors.white, size: 24),
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _displayName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    if (_displayRole.isNotEmpty)
+                      Text(
+                        _displayRole,
+                        style: const TextStyle(
+                          color: MainColors.sidebarNameText,
+                          fontSize: 14,
+                        ),
+                      ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
