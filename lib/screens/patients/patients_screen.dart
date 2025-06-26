@@ -26,8 +26,10 @@ class _PatientsScreenState extends State<PatientsScreen> {
   int _currentPage = 1; // 1페이지부터 보여준다
 
   List<Map<String, dynamic>> get _pageSlice {
+    if (_patientsInfo.isEmpty) return [];
     final start = (_currentPage - 1) * _pageSize;
     final end = (start + _pageSize).clamp(0, _patientsInfo.length);
+    if (start >= _patientsInfo.length) return [];
     return _patientsInfo.sublist(start, end);
   }
 
