@@ -62,11 +62,11 @@ class _PatientsScreenState extends State<PatientsScreen> {
           final last = nameMap['last_name'] ?? '';
           return {
             'name': '$last $first',
-            'patientId': p['patient_id'] ?? '',
-            'phoneNum': p['phone_num'] ?? '',
-            'doctorCnt': (p['doctor_id'] as List).length,
-            'noteCnt': (p['medical_notes'] as List).length,
-            'createdAt': p['created_at'] ?? '',
+            'mrn': p['patient_mrn'] ?? '',
+            'phone_num': p['phone_num'] ?? '',
+            'age': p['age'] ?? '',
+            'body_part': p['body_part'],
+            'ai_ready': p['ai_ready'] ?? true,
           };
         }).toList();
         setState(() {
@@ -192,7 +192,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
                     children: [
                       Row(
                         children: [
-                          Text('${_patientsInfo.length} patient ${_patientsInfo.length == 1 ? '' : 's'}',
+                          Text('${_patientsInfo.length} patient${_patientsInfo.length == 1 ? '' : 's'}',
                               style: TextStyle(color: Colors.grey[400])),
                           const SizedBox(width: 16),
                           OutlinedButton.icon(
@@ -344,6 +344,10 @@ class PatientTable extends StatelessWidget {
         ],
         rows: data.map((p) {
           final initials = p['name'].toString().trim().split(RegExp(r'\s+')).take(2).map((s) => s[0].toUpperCase()).join();
+          final bodyPartRaw = p['body_part'];
+          final bodyPartStr = (bodyPartRaw is List)
+              ? bodyPartRaw.join('\n')
+              : (bodyPartRaw is String ? bodyPartRaw : '-');
 
           return DataRow(cells: [
             DataCell(Checkbox(
@@ -358,11 +362,14 @@ class PatientTable extends StatelessWidget {
               const SizedBox(width: 8),
               Text(p['name'], style: const TextStyle(color: Colors.white)),
             ])),
-            DataCell(Text(p['patientId'], style: const TextStyle(color: Colors.white))),
-            DataCell(Text(p['phoneNum'], style: const TextStyle(color: Colors.white))),
-            DataCell(Text('${p['doctorCnt']}', style: const TextStyle(color: Colors.white))),
-            DataCell(Text('${p['noteCnt']}', style: const TextStyle(color: Colors.white))),
-            DataCell(Text(p['createdAt'].toString().substring(0, 10), style: const TextStyle(color: Colors.white))),
+            DataCell(Text('${p['age']}', style: const TextStyle(color: Colors.white))),
+            DataCell(Text(p['mrn'], style: const TextStyle(color: Colors.white))),
+            DataCell(Text(
+              bodyPartStr,
+              style: const TextStyle(color: Colors.white),
+            )),
+            DataCell(Text(p['mrn'], style: const TextStyle(color: Colors.white))),
+            DataCell(Text(p['ai_ready'].toString(), style: const TextStyle(color: Colors.white))),
             DataCell(IconButton(icon: const Icon(Icons.more_horiz, color: Colors.white), onPressed: () {})),
           ]);
         }).toList(),
