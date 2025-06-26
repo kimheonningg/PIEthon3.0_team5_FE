@@ -6,6 +6,7 @@ import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
 import 'package:piethon_team5_fe/widgets/navigation_sidebar.dart';
 import 'package:piethon_team5_fe/functions/token_manager.dart';
+import 'package:piethon_team5_fe/screens/patients/create_new_patient.dart';
 
 class PatientsScreen extends StatefulWidget {
   const PatientsScreen({super.key});
@@ -158,7 +159,12 @@ class _PatientsScreenState extends State<PatientsScreen> {
                           const SizedBox(width: 16),
                           // + New Patient 버튼
                           ElevatedButton.icon(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const CreateNewPatientScreen()),
+                              );
+                            },
                             icon: const Icon(
                               Icons.add,
                               size: 18,
