@@ -12,4 +12,5 @@ class MainColors {
   static const sidebarItemText = Color(0xFFD1D5DB);
   static const sidebarItemSelectedText = Color(0xFF3B82F6);
   static const sidebarItemSelectedBackground = Color(0x333B82F6);
+  static const AIenabled = Color(0xFF22C55E);
 }
