@@ -1,7 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:piethon_team5_fe/const.dart';
 import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
 import 'package:piethon_team5_fe/widgets/navigation_sidebar.dart';
+import 'package:piethon_team5_fe/functions/token_manager.dart';
 
 class PatientsScreen extends StatefulWidget {
   const PatientsScreen({super.key});
@@ -11,8 +15,69 @@ class PatientsScreen extends StatefulWidget {
 }
 
 class _PatientsScreenState extends State<PatientsScreen> {
+  List<Map<String, dynamic>> _patientsInfo = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPatients();
+  }
+
+  Future<void> _loadPatients() async {
+    setState(() => _loading = true); // 새로고침 시 로딩 표시
+    try {
+      final token = await TokenManager.getAccessToken();
+      if (token == null || token.isEmpty) throw Exception('Please Login.');
+
+      final res = await http.get(
+        Uri.parse('$BASE_URL/patients'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (res.statusCode == 200) {
+        final json = jsonDecode(res.body);
+        final raw  = List<Map<String, dynamic>>.from(json['patients']);
+        final mapped = raw.map((p) {
+          final nameMap = p['name'] as Map<String, dynamic>? ?? {};
+          final first   = nameMap['firstName'] ?? '';
+          final last    = nameMap['lastName']  ?? '';
+          return {
+            'name'      : '$last $first',             // lastName first
+            'patientId' : p['patientId'] ?? '',
+            'phoneNum'  : p['phoneNum']  ?? '',
+            'doctorCnt' : (p['doctorId']      as List).length,
+            'noteCnt'   : (p['medicalNotes']  as List).length,
+            'createdAt' : p['createdAt'] ?? '',
+          };
+        }).toList();
+        setState(() {
+            _patientsInfo = mapped;
+            _loading = false;
+        });
+      } else if (res.statusCode == 401) {
+          await TokenManager.clearAccessToken();
+          if (!mounted) return;
+          Navigator.pushReplacementNamed(context, '/login');
+      } else {
+        throw Exception('HTTP ${res.statusCode}');
+      }
+    } catch (e) {
+      setState(() => _loading = false);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
     return Scaffold(
       body: Row(
         children: [
@@ -120,7 +185,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
                               style: TextStyle(color: Colors.grey[400])),
                           const SizedBox(width: 16),
                           OutlinedButton.icon(
-                            onPressed: () {},
+                            onPressed: _loadPatients,
                             icon: const Icon(Icons.filter_list, size: 18),
                             label: const Text('Filters'),
                             style: OutlinedButton.styleFrom(
@@ -185,8 +250,8 @@ class _PatientsScreenState extends State<PatientsScreen> {
 
                 Gaps.v24,
                 // 3. 환자 목록 테이블 (Expanded로 남는 공간을 모두 채움)
-                const Expanded(
-                  child: PatientTable(),
+                Expanded(
+                  child: PatientTable(data: _patientsInfo),
                 ),
                 // 4. 페이지네이션
                 const Pagination(),
@@ -201,7 +266,8 @@ class _PatientsScreenState extends State<PatientsScreen> {
 
 // 환자 목록 테이블
 class PatientTable extends StatelessWidget {
-  const PatientTable({super.key});
+  final List<Map<String, dynamic>> data;
+  const PatientTable({super.key, required this.data});
 
   // 샘플 데이터
   final List<Map<String, dynamic>> patientData = const [
@@ -236,6 +302,14 @@ class PatientTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    if (data.isEmpty) {
+      return const Center(
+        child: Text('No assigned patients.',
+            style: TextStyle(color: Colors.white)),
+      );
+    }
+
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF2D3748),
@@ -276,51 +350,48 @@ class PatientTable extends StatelessWidget {
           DataColumn(label: Text('AI Ready')),
           DataColumn(label: Text(' ')), // 점 3개 메뉴용
         ],
-        rows: patientData
-            .map((patient) => DataRow(
-                  cells: [
-                    DataCell(Checkbox(
-                        value: false,
-                        onChanged: (val) {},
-                        checkColor: Colors.white,
-                        activeColor: Colors.blue)),
-                    DataCell(Row(children: [
-                      CircleAvatar(
-                          backgroundColor: Colors.blue,
-                          child: Text(
-                              patient['name'].substring(0, 2).toUpperCase(),
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 12))),
-                      const SizedBox(width: 8),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(patient['name'],
-                              style: const TextStyle(color: Colors.white)),
-                          Text(patient['gender'],
-                              style: TextStyle(
-                                  color: Colors.grey[400], fontSize: 12)),
-                        ],
-                      ),
-                    ])),
-                    DataCell(Text(patient['age'].toString(),
-                        style: const TextStyle(color: Colors.white))),
-                    DataCell(Text(patient['mrn'],
-                        style: const TextStyle(color: Colors.white))),
-                    DataCell(Text(patient['part'],
-                        style: const TextStyle(color: Colors.white))),
-                    DataCell(Text(patient['physician'],
-                        style: const TextStyle(color: Colors.white))),
-                    DataCell(patient['ai_ready']
-                        ? const Icon(Icons.check_circle, color: Colors.green)
-                        : Icon(Icons.circle_outlined, color: Colors.grey[400])),
-                    DataCell(IconButton(
-                        icon: const Icon(Icons.more_horiz, color: Colors.white),
-                        onPressed: () {})),
-                  ],
-                ))
-            .toList(),
+        rows: data.map((p) {
+          final initials = p['name']
+              .toString()
+              .trim()
+              .split(RegExp(r'\s+'))
+              .take(2)
+              .map((s) => s[0].toUpperCase())
+              .join();
+
+          return DataRow(cells: [
+            DataCell(Checkbox(
+              value: false,
+              onChanged: (val) {},
+              checkColor: Colors.white,
+              activeColor: Colors.blue,
+            )),
+            DataCell(Row(children: [
+              CircleAvatar(
+                  backgroundColor: Colors.blue,
+                  child: Text(initials,
+                      style: const TextStyle(
+                          color: Colors.white, fontSize: 12))),
+              const SizedBox(width: 8),
+              Text(p['name'],
+                  style: const TextStyle(color: Colors.white)),
+            ])),
+            DataCell(Text(p['patientId'],
+                style: const TextStyle(color: Colors.white))),
+            DataCell(Text(p['phoneNum'],
+                style: const TextStyle(color: Colors.white))),
+            DataCell(Text('${p['doctorCnt']}',
+                style: const TextStyle(color: Colors.white))),
+            DataCell(Text('${p['noteCnt']}',
+                style: const TextStyle(color: Colors.white))),
+            DataCell(Text(p['createdAt'].toString().substring(0, 10),
+                style: const TextStyle(color: Colors.white))),
+            DataCell(IconButton(
+                icon:
+                    const Icon(Icons.more_horiz, color: Colors.white),
+                onPressed: () {})),
+          ]);
+        }).toList(),
       ),
     );
   }
