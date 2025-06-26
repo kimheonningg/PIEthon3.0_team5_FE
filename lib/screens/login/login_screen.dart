@@ -11,6 +11,7 @@ import 'package:piethon_team5_fe/const.dart';
 import 'package:piethon_team5_fe/screens/register/register_screen.dart';
 import 'package:piethon_team5_fe/screens/login/change_pw_screen.dart';
 import 'package:piethon_team5_fe/screens/login/find_id_screen.dart';
+import 'package:piethon_team5_fe/functions/token_manager.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -116,30 +117,34 @@ class _LoginScreenState extends State<LoginScreen> {
                   final res = await http.post(
                     Uri.parse('$BASE_URL/login'),
                     headers: {'Content-Type': 'application/json'},
-                    body: jsonEncode({
-                      'userId': userId,
-                      'password': password,
-                    }),
+                    body: jsonEncode({'userId': userId, 'password': password}),
                   );
 
                   if (res.statusCode == 200) {
-                    final data = jsonDecode(res.body);
-                    print("로그인 성공: $data");
-                    //로그인 성공 시 PatientsScreen으로 이동
+                    final data   = jsonDecode(res.body);
+                    final token  = data['access_token'];
+
+                    if (token == null || token.isEmpty) {
+                      throw Exception('Token missing in response');
+                    }
+
+                    print("로그인 성공, token: $token");
+                    await TokenManager.saveAccessToken(token);
+
+                    if (!context.mounted) return;
                     Navigator.pushNamed(context, '/patients');
                   } else {
-                    print("로그인 실패: ${res.statusCode}");
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text("로그인 실패. 아이디 또는 비밀번호를 확인하세요.")),
+                      const SnackBar(content: Text("Failed to login: please check your ID or your password.")),
                     );
                   }
                 } catch (e) {
                   print("에러 발생: $e");
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("서버와 통신 중 오류가 발생했습니다.")),
+                    const SnackBar(content: Text("Error in connecting server.")),
                   );
                 }
+
               },
               child: Container(
                 width: 480,
