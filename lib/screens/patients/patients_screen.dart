@@ -390,14 +390,18 @@ class Pagination extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final start = (currentPage - 1) * pageSize + 1;
-    final end = (currentPage * pageSize).clamp(1, totalItems);
+    final start = totalItems == 0 ? 0 : (currentPage - 1) * pageSize + 1;
+    final end = totalItems == 0 ? 0 : (currentPage * pageSize).clamp(1, totalItems);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text('Showing $start-$end of $totalItems patient${totalItems == 1 ? '' : 's'}',
-            style: TextStyle(color: Colors.grey[400])),
+        Text(
+          totalItems == 0
+            ? 'No patients to show.'
+            : 'Showing $start-$end of $totalItems patient${totalItems == 1 ? '' : 's'}',
+          style: TextStyle(color: Colors.grey[400]),
+        ),
         Row(
           children: [
             TextButton(
