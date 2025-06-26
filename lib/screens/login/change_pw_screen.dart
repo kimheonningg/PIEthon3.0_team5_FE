@@ -42,7 +42,7 @@ class _ChangePwScreenState extends State<ChangePwScreen> {
                     children: const [
                       Icon(Icons.arrow_back_ios, color: Colors.white, size: 18),
                       Text(
-                        '이전으로',
+                        'Go back',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
@@ -55,7 +55,7 @@ class _ChangePwScreenState extends State<ChangePwScreen> {
               ),
               Gaps.v20,
               const Text(
-                '비밀번호 재설정',
+                'Reset password',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
@@ -71,7 +71,7 @@ class _ChangePwScreenState extends State<ChangePwScreen> {
                   fontSize: 16.0,
                 ),
                 decoration: InputDecoration(
-                  hintText: '아이디',
+                  hintText: 'ID',
                   hintStyle: const TextStyle(
                     color: MainColors.hinttext,
                     fontSize: 16.0,
@@ -96,7 +96,7 @@ class _ChangePwScreenState extends State<ChangePwScreen> {
                         fontSize: 16.0,
                       ),
                       decoration: InputDecoration(
-                        hintText: '성',
+                        hintText: 'Last Name',
                         hintStyle: const TextStyle(
                           color: MainColors.hinttext,
                           fontSize: 16.0,
@@ -120,7 +120,7 @@ class _ChangePwScreenState extends State<ChangePwScreen> {
                         fontSize: 16.0,
                       ),
                       decoration: InputDecoration(
-                        hintText: '이름',
+                        hintText: 'First Name',
                         hintStyle: const TextStyle(
                           color: MainColors.hinttext,
                           fontSize: 16.0,
@@ -146,7 +146,7 @@ class _ChangePwScreenState extends State<ChangePwScreen> {
                   fontSize: 16.0,
                 ),
                 decoration: InputDecoration(
-                  hintText: '기존 비밀번호',
+                  hintText: 'Current Password',
                   hintStyle: const TextStyle(
                     color: MainColors.hinttext,
                     fontSize: 16.0,
@@ -169,7 +169,7 @@ class _ChangePwScreenState extends State<ChangePwScreen> {
                   fontSize: 16.0,
                 ),
                 decoration: InputDecoration(
-                  hintText: '새로운 비밀번호',
+                  hintText: 'New Password',
                   hintStyle: const TextStyle(
                     color: MainColors.hinttext,
                     fontSize: 16.0,
@@ -205,12 +205,12 @@ class _ChangePwScreenState extends State<ChangePwScreen> {
 
                   if (response.statusCode == 200) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('비밀번호가 변경되었습니다.')),
+                      const SnackBar(content: Text('Resetted your password successfully.')),
                     );
                     Navigator.pop(context);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('실패: ${response.body}')),
+                      SnackBar(content: Text('Error: ${response.body}')),
                     );
                   }
                 },
@@ -225,7 +225,7 @@ class _ChangePwScreenState extends State<ChangePwScreen> {
                   ),
                   child: const Center(
                     child: Text(
-                      '재설정하기',
+                      'Reset',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white,

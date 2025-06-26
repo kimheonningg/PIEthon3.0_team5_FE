@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             Gaps.v10,
             const Text(
-              '로그인',
+              'Login',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
@@ -52,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 fontSize: 16.0,
               ),
               decoration: InputDecoration(
-                hintText: '아이디를 입력해주세요',
+                hintText: 'Please enter your ID',
                 hintStyle: const TextStyle(
                   color: MainColors.hinttext, // 힌트 텍스트 색상
                   fontSize: 16.0,
@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 fontSize: 16.0,
               ),
               decoration: InputDecoration(
-                hintText: '비밀번호를 입력해주세요',
+                hintText: 'Please enter your password',
                 hintStyle: const TextStyle(
                   color: MainColors.hinttext, // 힌트 텍스트 색상
                   fontSize: 16.0,
@@ -105,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 if (userId.isEmpty || password.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("아이디와 비밀번호를 모두 입력해주세요.")),
+                    const SnackBar(content: Text("Please enter your ID and your password")),
                   );
                   return;
                 }
@@ -153,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 child: const Center(
                   child: Text(
-                    '로그인하기',
+                    'Login',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
@@ -174,7 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Navigator.pushNamed(context, '/login/findID');
                   },
                   child: const Text(
-                    '아이디 찾기',
+                    'Find ID',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
@@ -199,7 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Navigator.pushNamed(context, '/login/changePW');
                   },
                   child: const Text(
-                    '비밀번호 재설정',
+                    'Reset password',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
@@ -221,10 +221,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushNamed(context, '/login/findID');
+                    Navigator.pushNamed(context, '/login/register');
                   },
                   child: const Text(
-                    '회원가입하기',
+                    'Register',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,

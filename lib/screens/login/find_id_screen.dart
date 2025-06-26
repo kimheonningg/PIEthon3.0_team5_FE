@@ -42,7 +42,7 @@ class _FindIdScreenState extends State<FindIdScreen> {
                     children: const [
                       Icon(Icons.arrow_back_ios, color: Colors.white, size: 18),
                       Text(
-                        '이전으로',
+                        'Go back',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
@@ -55,7 +55,7 @@ class _FindIdScreenState extends State<FindIdScreen> {
               ),
               Gaps.v20,
               const Text(
-                '아이디 찾기',
+                'Find ID',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
@@ -71,7 +71,7 @@ class _FindIdScreenState extends State<FindIdScreen> {
                   fontSize: 16.0,
                 ),
                 decoration: InputDecoration(
-                  hintText: '전화번호',
+                  hintText: 'Phone number',
                   hintStyle: const TextStyle(
                     color: MainColors.hinttext,
                     fontSize: 16.0,
@@ -96,7 +96,7 @@ class _FindIdScreenState extends State<FindIdScreen> {
                         fontSize: 16.0,
                       ),
                       decoration: InputDecoration(
-                        hintText: '성',
+                        hintText: 'Last name',
                         hintStyle: const TextStyle(
                           color: MainColors.hinttext,
                           fontSize: 16.0,
@@ -120,7 +120,7 @@ class _FindIdScreenState extends State<FindIdScreen> {
                         fontSize: 16.0,
                       ),
                       decoration: InputDecoration(
-                        hintText: '이름',
+                        hintText: 'First name',
                         hintStyle: const TextStyle(
                           color: MainColors.hinttext,
                           fontSize: 16.0,
@@ -159,16 +159,16 @@ class _FindIdScreenState extends State<FindIdScreen> {
                     final responseData = jsonDecode(response.body);
                     if (responseData["success"] == true) {
                       setState(() {
-                        _foundUserId = '아이디는 ${responseData["userId"]} 입니다.';
+                        _foundUserId = 'Your ID is: ${responseData["userId"]}.';
                       });
                     } else {
                       setState(() {
-                        _foundUserId = '아이디를 찾을 수 없습니다.';
+                        _foundUserId = 'Cannot find ID. Please register.';
                       });
                     }
                   } else {
                     setState(() {
-                      _foundUserId = '아이디를 찾을 수 없습니다.';
+                      _foundUserId = 'Cannot find ID. Please register.';
                     });
                   }
                 },
@@ -183,7 +183,7 @@ class _FindIdScreenState extends State<FindIdScreen> {
                   ),
                   child: const Center(
                     child: Text(
-                      '아이디 찾기',
+                      'Find',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white,

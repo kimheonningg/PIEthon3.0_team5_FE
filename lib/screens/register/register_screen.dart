@@ -44,7 +44,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     children: [
                       Icon(Icons.arrow_back_ios, color: Colors.white, size: 18),
                       Text(
-                        '이전으로',
+                        'Go back',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 14,
@@ -57,7 +57,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               Gaps.v20,
               const Text(
-                '회원가입',
+                'Register',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
@@ -73,7 +73,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   fontSize: 16.0,
                 ),
                 decoration: InputDecoration(
-                  hintText: '이메일',
+                  hintText: 'Email',
                   hintStyle: const TextStyle(
                     color: MainColors.hinttext,
                     fontSize: 16.0,
@@ -95,7 +95,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   fontSize: 16.0,
                 ),
                 decoration: InputDecoration(
-                  hintText: '전화번호',
+                  hintText: 'Phone number',
                   hintStyle: const TextStyle(
                     color: MainColors.hinttext,
                     fontSize: 16.0,
@@ -120,7 +120,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         fontSize: 16.0,
                       ),
                       decoration: InputDecoration(
-                        hintText: '성',
+                        hintText: 'Last name',
                         hintStyle: const TextStyle(
                           color: MainColors.hinttext,
                           fontSize: 16.0,
@@ -144,7 +144,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         fontSize: 16.0,
                       ),
                       decoration: InputDecoration(
-                        hintText: '이름',
+                        hintText: 'First Name',
                         hintStyle: const TextStyle(
                           color: MainColors.hinttext,
                           fontSize: 16.0,
@@ -169,7 +169,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   fontSize: 16.0,
                 ),
                 decoration: InputDecoration(
-                  hintText: '의사면허번호',
+                  hintText: 'Medical Licence Number',
                   hintStyle: const TextStyle(
                     color: MainColors.hinttext,
                     fontSize: 16.0,
@@ -191,7 +191,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   fontSize: 16.0,
                 ),
                 decoration: InputDecoration(
-                  hintText: '아이디',
+                  hintText: 'ID',
                   hintStyle: const TextStyle(
                     color: MainColors.hinttext,
                     fontSize: 16.0,
@@ -214,7 +214,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   fontSize: 16.0,
                 ),
                 decoration: InputDecoration(
-                  hintText: '비밀번호',
+                  hintText: 'Password',
                   hintStyle: const TextStyle(
                     color: MainColors.hinttext,
                     fontSize: 16.0,
@@ -278,7 +278,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   child: const Center(
                     child: Text(
-                      '회원가입하기',
+                      'Register',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white,
