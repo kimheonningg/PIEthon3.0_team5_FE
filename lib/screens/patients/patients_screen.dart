@@ -65,6 +65,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
             'mrn': p['patient_mrn'] ?? '',
             'phone_num': p['phone_num'] ?? '',
             'age': p['age'] ?? '',
+            'doctor_name': p['doctor_name'],
             'body_part': p['body_part'],
             'ai_ready': p['ai_ready'] ?? true,
           };
@@ -345,9 +346,13 @@ class PatientTable extends StatelessWidget {
         rows: data.map((p) {
           final initials = p['name'].toString().trim().split(RegExp(r'\s+')).take(2).map((s) => s[0].toUpperCase()).join();
           final bodyPartRaw = p['body_part'];
+          final physicianRaw = p['doctor_name'];
           final bodyPartStr = (bodyPartRaw is List)
               ? bodyPartRaw.join('\n')
               : (bodyPartRaw is String ? bodyPartRaw : '-');
+          final physicianStr = (physicianRaw is List)
+              ? physicianRaw.join('\n')
+              : (physicianRaw is String ? physicianRaw : '-');
 
           return DataRow(cells: [
             DataCell(Checkbox(
@@ -368,7 +373,10 @@ class PatientTable extends StatelessWidget {
               bodyPartStr,
               style: const TextStyle(color: Colors.white),
             )),
-            DataCell(Text(p['mrn'], style: const TextStyle(color: Colors.white))),
+            DataCell(Text(
+              physicianStr,
+              style: const TextStyle(color: Colors.white),
+            )),
             DataCell(Text(p['ai_ready'].toString(), style: const TextStyle(color: Colors.white))),
             DataCell(IconButton(icon: const Icon(Icons.more_horiz, color: Colors.white), onPressed: () {})),
           ]);
