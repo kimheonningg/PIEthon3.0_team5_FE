@@ -40,36 +40,35 @@ class _PatientsScreenState extends State<PatientsScreen> {
 
       if (res.statusCode == 200) {
         final json = jsonDecode(res.body);
-        final raw  = List<Map<String, dynamic>>.from(json['patients']);
+        final raw = List<Map<String, dynamic>>.from(json['patients']);
         final mapped = raw.map((p) {
           final nameMap = p['name'] as Map<String, dynamic>? ?? {};
-          final first   = nameMap['firstName'] ?? '';
-          final last    = nameMap['lastName']  ?? '';
+          final first = nameMap['firstName'] ?? '';
+          final last = nameMap['lastName'] ?? '';
           return {
-            'name'      : '$last $first',             // lastName first
-            'patientId' : p['patientId'] ?? '',
-            'phoneNum'  : p['phoneNum']  ?? '',
-            'doctorCnt' : (p['doctorId']      as List).length,
-            'noteCnt'   : (p['medicalNotes']  as List).length,
-            'createdAt' : p['createdAt'] ?? '',
+            'name': '$last $first', // lastName first
+            'patientId': p['patientId'] ?? '',
+            'phoneNum': p['phoneNum'] ?? '',
+            'doctorCnt': (p['doctorId'] as List).length,
+            'noteCnt': (p['medicalNotes'] as List).length,
+            'createdAt': p['createdAt'] ?? '',
           };
         }).toList();
         setState(() {
-            _patientsInfo = mapped;
-            _loading = false;
+          _patientsInfo = mapped;
+          _loading = false;
         });
       } else if (res.statusCode == 401) {
-          await TokenManager.clearAccessToken();
-          if (!mounted) return;
-          Navigator.pushReplacementNamed(context, '/login');
+        await TokenManager.clearAccessToken();
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, '/login');
       } else {
         throw Exception('HTTP ${res.statusCode}');
       }
     } catch (e) {
       setState(() => _loading = false);
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
@@ -109,39 +108,34 @@ class _PatientsScreenState extends State<PatientsScreen> {
                             child: TextField(
                               decoration: InputDecoration(
                                 hintText: 'Search patients...',
-                                hintStyle:
-                                    const TextStyle(color: MainColors.hinttext),
-                                prefixIcon: const Icon(Icons.search,
-                                    color: MainColors.hinttext),
+                                hintStyle: const TextStyle(color: MainColors.hinttext),
+                                prefixIcon: const Icon(Icons.search, color: MainColors.hinttext),
                                 filled: true,
                                 fillColor: MainColors.textfield,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide.none,
                                 ),
-                                contentPadding:
-                                    const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                                contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                               ),
                             ),
                           ),
                           const SizedBox(width: 16),
                           // AI System 상태
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             child: Row(
                               children: [
                                 Container(
                                   width: 8,
                                   height: 8,
                                   decoration: const BoxDecoration(
-                                    color: MainColors.AIenabled,
+                                    color: MainColors.aiEnabled,
                                     shape: BoxShape.circle,
                                   ),
                                 ),
                                 const SizedBox(width: 8),
-                                const Text('AI System: Online',
-                                    style: TextStyle(color: Color(0xFF4B5563))),
+                                const Text('AI System: Online', style: TextStyle(color: Color(0xFF4B5563))),
                               ],
                             ),
                           ),
@@ -156,11 +150,9 @@ class _PatientsScreenState extends State<PatientsScreen> {
                             ),
                             label: const Text('New Patient'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  MainColors.sidebarItemSelectedText,
+                              backgroundColor: MainColors.sidebarItemSelectedText,
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 16),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -172,8 +164,12 @@ class _PatientsScreenState extends State<PatientsScreen> {
                   ),
                 ),
 
-                Gaps.v24,
-                // 2. 필터 및 정렬
+                //구분선
+                Container(
+                  height: 1,
+                  color: const Color(0x88374151),
+                ),
+                // 필터, 정렬 등 버튼들
                 Padding(
                   padding: const EdgeInsets.all(24),
                   child: Row(
@@ -181,20 +177,18 @@ class _PatientsScreenState extends State<PatientsScreen> {
                     children: [
                       Row(
                         children: [
-                          Text('156 patients',
-                              style: TextStyle(color: Colors.grey[400])),
+                          const Text('156 patients', style: TextStyle(color: MainColors.sidebarNameText)),
                           const SizedBox(width: 16),
                           OutlinedButton.icon(
                             onPressed: _loadPatients,
                             icon: const Icon(Icons.filter_list, size: 18),
                             label: const Text('Filters'),
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.grey[300],
-                              side: BorderSide(color: Colors.grey[700]!),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8)),
+                              foregroundColor: MainColors.sidebarItemText,
+                              backgroundColor: MainColors.button2,
+                              side: BorderSide.none,
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -203,12 +197,11 @@ class _PatientsScreenState extends State<PatientsScreen> {
                             icon: const Icon(Icons.sort, size: 18),
                             label: const Text('Sort'),
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.grey[300],
-                              side: BorderSide(color: Colors.grey[700]!),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8)),
+                              foregroundColor: MainColors.sidebarItemText,
+                              backgroundColor: MainColors.button2,
+                              side: BorderSide.none,
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
                           ),
                         ],
@@ -220,12 +213,11 @@ class _PatientsScreenState extends State<PatientsScreen> {
                             icon: const Icon(Icons.download, size: 18),
                             label: const Text('Export'),
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.grey[300],
-                              side: BorderSide(color: Colors.grey[700]!),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8)),
+                              foregroundColor: MainColors.sidebarItemText,
+                              backgroundColor: MainColors.button2,
+                              side: BorderSide.none,
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -234,12 +226,11 @@ class _PatientsScreenState extends State<PatientsScreen> {
                             icon: const Icon(Icons.refresh, size: 18),
                             label: const Text('Refresh'),
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.grey[300],
-                              side: BorderSide(color: Colors.grey[700]!),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8)),
+                              foregroundColor: MainColors.sidebarItemText,
+                              backgroundColor: MainColors.button2,
+                              side: BorderSide.none,
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
                           ),
                         ],
@@ -247,9 +238,14 @@ class _PatientsScreenState extends State<PatientsScreen> {
                     ],
                   ),
                 ),
+                //구분선
+                Container(
+                  height: 1,
+                  color: const Color(0x88374151),
+                ),
 
                 Gaps.v24,
-                // 3. 환자 목록 테이블 (Expanded로 남는 공간을 모두 채움)
+                // 환자 목록 테이블 (Expanded로 남는 공간을 모두 채움)
                 Expanded(
                   child: PatientTable(data: _patientsInfo),
                 ),
@@ -302,62 +298,30 @@ class PatientTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     if (data.isEmpty) {
       return const Center(
-        child: Text('No assigned patients.',
-            style: TextStyle(color: Colors.white)),
+        child: Text('No assigned patients.', style: TextStyle(color: Colors.white)),
       );
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF2D3748),
-        borderRadius: BorderRadius.circular(8),
-      ),
+    return Padding(
+      padding: const EdgeInsets.all(24),
       child: DataTable(
-        dataRowColor: WidgetStateProperty.all(const Color(0xFF2D3748)),
-        headingRowColor: WidgetStateProperty.all(const Color(0xFF1A202C)),
-        headingTextStyle:
-            const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        dataRowColor: WidgetStateProperty.all(Colors.transparent),
+        headingRowColor: WidgetStateProperty.all(Colors.transparent),
+        headingTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         columns: const [
           DataColumn(label: Text(' ')), // 체크박스용
-          DataColumn(
-              label: Row(children: [
-            Text('Name'),
-            Icon(Icons.arrow_downward, size: 16)
-          ])),
-          DataColumn(
-              label: Row(children: [
-            Text('Age'),
-            Icon(Icons.arrow_downward, size: 16)
-          ])),
-          DataColumn(
-              label: Row(children: [
-            Text('MRN'),
-            Icon(Icons.arrow_downward, size: 16)
-          ])),
-          DataColumn(
-              label: Row(children: [
-            Text('Body Part'),
-            Icon(Icons.arrow_downward, size: 16)
-          ])),
-          DataColumn(
-              label: Row(children: [
-            Text('Physician'),
-            Icon(Icons.arrow_downward, size: 16)
-          ])),
+          DataColumn(label: Row(children: [Text('Name'), Icon(Icons.arrow_downward, size: 16)])),
+          DataColumn(label: Row(children: [Text('Age'), Icon(Icons.arrow_downward, size: 16)])),
+          DataColumn(label: Row(children: [Text('MRN'), Icon(Icons.arrow_downward, size: 16)])),
+          DataColumn(label: Row(children: [Text('Body Part'), Icon(Icons.arrow_downward, size: 16)])),
+          DataColumn(label: Row(children: [Text('Physician'), Icon(Icons.arrow_downward, size: 16)])),
           DataColumn(label: Text('AI Ready')),
           DataColumn(label: Text(' ')), // 점 3개 메뉴용
         ],
         rows: data.map((p) {
-          final initials = p['name']
-              .toString()
-              .trim()
-              .split(RegExp(r'\s+'))
-              .take(2)
-              .map((s) => s[0].toUpperCase())
-              .join();
+          final initials = p['name'].toString().trim().split(RegExp(r'\s+')).take(2).map((s) => s[0].toUpperCase()).join();
 
           return DataRow(cells: [
             DataCell(Checkbox(
@@ -368,28 +332,16 @@ class PatientTable extends StatelessWidget {
             )),
             DataCell(Row(children: [
               CircleAvatar(
-                  backgroundColor: Colors.blue,
-                  child: Text(initials,
-                      style: const TextStyle(
-                          color: Colors.white, fontSize: 12))),
+                  backgroundColor: Colors.blue, child: Text(initials, style: const TextStyle(color: Colors.white, fontSize: 12))),
               const SizedBox(width: 8),
-              Text(p['name'],
-                  style: const TextStyle(color: Colors.white)),
+              Text(p['name'], style: const TextStyle(color: Colors.white)),
             ])),
-            DataCell(Text(p['patientId'],
-                style: const TextStyle(color: Colors.white))),
-            DataCell(Text(p['phoneNum'],
-                style: const TextStyle(color: Colors.white))),
-            DataCell(Text('${p['doctorCnt']}',
-                style: const TextStyle(color: Colors.white))),
-            DataCell(Text('${p['noteCnt']}',
-                style: const TextStyle(color: Colors.white))),
-            DataCell(Text(p['createdAt'].toString().substring(0, 10),
-                style: const TextStyle(color: Colors.white))),
-            DataCell(IconButton(
-                icon:
-                    const Icon(Icons.more_horiz, color: Colors.white),
-                onPressed: () {})),
+            DataCell(Text(p['patientId'], style: const TextStyle(color: Colors.white))),
+            DataCell(Text(p['phoneNum'], style: const TextStyle(color: Colors.white))),
+            DataCell(Text('${p['doctorCnt']}', style: const TextStyle(color: Colors.white))),
+            DataCell(Text('${p['noteCnt']}', style: const TextStyle(color: Colors.white))),
+            DataCell(Text(p['createdAt'].toString().substring(0, 10), style: const TextStyle(color: Colors.white))),
+            DataCell(IconButton(icon: const Icon(Icons.more_horiz, color: Colors.white), onPressed: () {})),
           ]);
         }).toList(),
       ),
@@ -406,8 +358,7 @@ class Pagination extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text('Showing 1-8 of 156 patients',
-            style: TextStyle(color: Colors.grey[400])),
+        Text('Showing 1-8 of 156 patients', style: TextStyle(color: Colors.grey[400])),
         Row(
           children: [
             TextButton(onPressed: () {}, child: const Text('< Previous')),
@@ -430,8 +381,7 @@ class Pagination extends StatelessWidget {
       child: TextButton(
         onPressed: () {},
         style: TextButton.styleFrom(
-          backgroundColor:
-              isSelected ? const Color(0xFF3A65E5) : Colors.transparent,
+          backgroundColor: isSelected ? const Color(0xFF3A65E5) : Colors.transparent,
           foregroundColor: Colors.white,
           minimumSize: const Size(40, 40),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

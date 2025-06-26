@@ -8,9 +8,6 @@ import 'package:piethon_team5_fe/widgets/maincolors.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:piethon_team5_fe/const.dart';
-import 'package:piethon_team5_fe/screens/register/register_screen.dart';
-import 'package:piethon_team5_fe/screens/login/change_pw_screen.dart';
-import 'package:piethon_team5_fe/screens/login/find_id_screen.dart';
 import 'package:piethon_team5_fe/functions/token_manager.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -121,8 +118,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   );
 
                   if (res.statusCode == 200) {
-                    final data   = jsonDecode(res.body);
-                    final token  = data['access_token'];
+                    final data = jsonDecode(res.body);
+                    final token = data['access_token'];
 
                     if (token == null || token.isEmpty) {
                       throw Exception('Token missing in response');
@@ -144,7 +141,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SnackBar(content: Text("Error in connecting server.")),
                   );
                 }
-
               },
               child: Container(
                 width: 480,
