@@ -19,20 +19,34 @@ class _PatientsScreenState extends State<PatientsScreen> {
   List<Map<String, dynamic>> _patientsInfo = [];
   bool _loading = true;
 
-  static const int _pageSize = 8;
+  // 검색 기능용
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
-  int get _totalPages => // page 개수 동적으로 조절
-      (_patientsInfo.length + _pageSize - 1) ~/ _pageSize;
+  static const int _pageSize = 8;
 
   int _currentPage = 1; // 1페이지부터 보여준다
 
-  List<Map<String, dynamic>> get _pageSlice {
-    if (_patientsInfo.isEmpty) return [];
-    final start = (_currentPage - 1) * _pageSize;
-    final end = (start + _pageSize).clamp(0, _patientsInfo.length);
-    if (start >= _patientsInfo.length) return [];
-    return _patientsInfo.sublist(start, end);
+  // 검색은 이름, MRN, 전화번호로
+  List<Map<String, dynamic>> get _filteredPatients {
+    if (_searchQuery.isEmpty) return _patientsInfo;
+    return _patientsInfo.where((p) {
+      final query = _searchQuery.toLowerCase();
+      return p['name'].toLowerCase().contains(query) ||
+            p['mrn'].toLowerCase().contains(query) ||
+            p['phone_num'].toLowerCase().contains(query);
+    }).toList();
   }
+
+  List<Map<String, dynamic>> get _pageSlice {
+    final filtered = _filteredPatients;
+    final start = (_currentPage - 1) * _pageSize;
+    final end = (start + _pageSize).clamp(0, filtered.length);
+    if (start >= filtered.length) return [];
+    return filtered.sublist(start, end);
+  }
+
+  int get _totalPages => (_filteredPatients.length + _pageSize - 1) ~/ _pageSize;
 
   @override
   void initState() {
@@ -123,6 +137,13 @@ class _PatientsScreenState extends State<PatientsScreen> {
                           SizedBox(
                             width: 256,
                             child: TextField(
+                              controller: _searchController,
+                              onChanged: (value) {
+                                setState(() {
+                                  _searchQuery = value;
+                                  _currentPage = 1; // 검색 시 첫 페이지로 이동
+                                });
+                              },
                               decoration: InputDecoration(
                                 hintText: 'Search patients...',
                                 hintStyle: const TextStyle(color: MainColors.hinttext),
