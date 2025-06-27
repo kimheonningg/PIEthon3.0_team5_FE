@@ -5,6 +5,7 @@ import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
 import 'package:piethon_team5_fe/functions/token_manager.dart';
 import 'package:piethon_team5_fe/functions/user_info_manager.dart';
+import 'package:piethon_team5_fe/screens/profile/doctor_profile_screen.dart';
 
 class SideNavigationBar extends StatefulWidget {
   const SideNavigationBar({super.key});
@@ -155,37 +156,42 @@ class _SideNavigationBarState extends State<SideNavigationBar> {
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 24,
-                  backgroundColor: MainColors.userProfile,
-                  child: const Icon(Icons.person,
-                      color: Colors.white, size: 24),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _displayName,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    if (_displayRole.isNotEmpty)
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(context, '/profile/doctor');
+              },
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 24,
+                    backgroundColor: MainColors.userProfile,
+                    child: const Icon(Icons.person,
+                        color: Colors.white, size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        _displayRole,
+                        _displayName,
                         style: const TextStyle(
-                          color: MainColors.sidebarNameText,
-                          fontSize: 14,
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                  ],
-                ),
-              ],
+                      if (_displayRole.isNotEmpty)
+                        Text(
+                          _displayRole,
+                          style: const TextStyle(
+                            color: MainColors.sidebarNameText,
+                            fontSize: 14,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ],

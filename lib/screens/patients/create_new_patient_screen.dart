@@ -39,12 +39,36 @@ class _CreateNewPatientScreenState extends State<CreateNewPatientScreen> {
                   onTap: () {
                     Navigator.pop(context);
                   },
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.arrow_back_ios, color: Colors.white, size: 18),
-                      Text(
-                        'Go back',
+                      const SizedBox(height: 60),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context, true);
+                          },
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.arrow_back_ios,
+                                  color: Colors.white, size: 18),
+                              Text(
+                                'Go back',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Gaps.v20,
+                      const Text(
+                        'Create New Patient',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 14,

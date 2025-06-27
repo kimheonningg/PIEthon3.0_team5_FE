@@ -6,7 +6,7 @@ import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
 import 'package:piethon_team5_fe/widgets/navigation_sidebar.dart';
 import 'package:piethon_team5_fe/functions/token_manager.dart';
-import 'package:piethon_team5_fe/screens/patients/create_new_patient.dart';
+import 'package:piethon_team5_fe/screens/patients/create_new_patient_screen.dart';
 
 class PatientsScreen extends StatefulWidget {
   const PatientsScreen({super.key});
@@ -334,37 +334,6 @@ class _PatientsScreenState extends State<PatientsScreen> {
 class PatientTable extends StatelessWidget {
   final List<Map<String, dynamic>> data;
   const PatientTable({super.key, required this.data});
-
-  // 샘플 데이터
-  final List<Map<String, dynamic>> patientData = const [
-    {
-      'name': 'Emily Browning',
-      'gender': 'Female',
-      'age': 42,
-      'mrn': 'MRN-78542',
-      'part': 'Brain',
-      'physician': 'Dr. James Wilson',
-      'ai_ready': true
-    },
-    {
-      'name': 'Robert Johnson',
-      'gender': 'Male',
-      'age': 65,
-      'mrn': 'MRN-23891',
-      'part': 'Spine',
-      'physician': 'Dr. Maria Rodriguez',
-      'ai_ready': true
-    },
-    {
-      'name': 'Sophia Liu',
-      'gender': 'Female',
-      'age': 28,
-      'mrn': 'MRN-45672',
-      'part': 'Knee',
-      'physician': 'Dr. Michael Thompson',
-      'ai_ready': false
-    },
-  ];
 
   @override
   Widget build(BuildContext context) {
