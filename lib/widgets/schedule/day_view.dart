@@ -76,10 +76,10 @@ class DayView extends StatelessWidget {
   // 진료 항목별 색상 매핑
   Color _colorByDetail(String detail) {
     final lower = detail.toLowerCase();
-    if (lower.contains('mri')) return Colors.blue.shade700;
-    if (lower.contains('ct')) return Colors.green.shade700;
-    if (lower.contains('x-ray')) return Colors.amber.shade700;
-    if (lower.contains('ultrasound')) return Colors.purple.shade700;
-    return MainColors.sidebarItemSelectedText; // 기본 색
+    if (lower.contains('mri')) return MainColors.mriAppointment;
+    if (lower.contains('ct')) return MainColors.ctAppointment;
+    if (lower.contains('x-ray') || lower.contains('xray')) return MainColors.xRayAppointment;
+    if (lower.contains('ultrasound')) return MainColors.ultrasoundAppointment;
+    return MainColors.defaultAppointment;
   }
 }

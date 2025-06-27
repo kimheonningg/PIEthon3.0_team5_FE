@@ -48,8 +48,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     if (response.statusCode == 200) {
       final jsonBody = jsonDecode(response.body);
       final items = jsonBody['appointments'] as List;
-      print('jsonBody');
-      print(jsonBody);
       setState(() {
         _appointments = items.map((e) => Appointment.fromJson(e)).toList();
       });
@@ -60,7 +58,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     }
   }
 
-  ViewType _currentView = ViewType.month;
+  ViewType _currentView = ViewType.day;
   DateTime _currentDate = DateTime.now();
 
   @override
@@ -88,43 +86,73 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Text(
             'Schedule',
-            style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
           ),
+
           Row(
             children: [
-              _buildViewToggle(ViewType.day, 'Day'),
-              const SizedBox(width: 8),
-              _buildViewToggle(ViewType.week, 'Week'),
-              const SizedBox(width: 8),
-              _buildViewToggle(ViewType.month, 'Month'),
-              const SizedBox(width: 24),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                width: 240,
+                height: 40,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: const Color(0xFF1F2937),
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFF374151)),
                 ),
-                child: Text(
-                  DateFormat.yMMMMd().format(_currentDate),
-                  style: const TextStyle(color: Colors.white70),
+                child: Row(
+                  children: [
+                    const Icon(Icons.search, color: Colors.white30, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        style: const TextStyle(color: Colors.white),
+                        decoration: const InputDecoration(
+                          hintText: 'Search appointments...',
+                          hintStyle: TextStyle(color: Colors.white30),
+                          border: InputBorder.none,
+                          isDense: true,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+
               const SizedBox(width: 16),
-              ElevatedButton(
+
+              const Icon(Icons.circle, color: Color(0xFF22C55E), size: 10),
+              const SizedBox(width: 6),
+              const Text(
+                'AI System: Online',
+                style: TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+
+              const SizedBox(width: 16),
+
+              ElevatedButton.icon(
                 onPressed: () {},
+                icon: const Icon(Icons.add, size: 16),
+                label: const Text('New Appointment'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF3A65E5),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-                child: const Text('+ New Appointment'),
-              )
+              ),
             ],
           ),
         ],
@@ -134,42 +162,95 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   Widget _buildSubHeader() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
-              OutlinedButton(
-                onPressed: () {},
-                child: const Text('All Physicians'),
+              _buildViewToggle(ViewType.day, 'Day'),
+              const SizedBox(width: 8),
+              _buildViewToggle(ViewType.week, 'Week'),
+              const SizedBox(width: 8),
+              _buildViewToggle(ViewType.month, 'Month'),
+              const SizedBox(width: 16),
+
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    _currentDate = _currentDate.subtract(const Duration(days: 1));
+                  });
+                },
+                icon: const Icon(Icons.chevron_left, color: Colors.white),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _currentDate = DateTime.now();
+                  });
+                },
+                style: TextButton.styleFrom(
+                  backgroundColor: const Color(0xFF1F2937),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                ),
+                child: const Text('Today'),
+              ),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    _currentDate = _currentDate.add(const Duration(days: 1));
+                  });
+                },
+                icon: const Icon(Icons.chevron_right, color: Colors.white),
               ),
               const SizedBox(width: 8),
-              OutlinedButton(
-                onPressed: () {},
-                child: const Text('All Modalities'),
-              )
+              Text(
+                DateFormat.yMMMMd().format(_currentDate),
+                style: const TextStyle(color: Colors.white70, fontSize: 16),
+              ),
             ],
           ),
+
           Row(
             children: [
-              OutlinedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.print),
-                label: const Text('Print Schedule'),
+              DropdownButton<String>(
+                value: 'All Physicians',
+                onChanged: (value) {},
+                dropdownColor: const Color(0xFF1F2937),
+                style: const TextStyle(color: Colors.white),
+                underline: const SizedBox(),
+                iconEnabledColor: Colors.white,
+                items: const [
+                  DropdownMenuItem(value: 'All Physicians', child: Text('All Physicians')),
+                  DropdownMenuItem(value: 'Dr. Lee', child: Text('Dr. Lee')),
+                  DropdownMenuItem(value: 'Dr. Kim', child: Text('Dr. Kim')),
+                ],
               ),
               const SizedBox(width: 8),
-              OutlinedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.download),
-                label: const Text('Export'),
-              )
+              DropdownButton<String>(
+                value: 'All Modalities',
+                onChanged: (value) {},
+                dropdownColor: const Color(0xFF1F2937),
+                style: const TextStyle(color: Colors.white),
+                underline: const SizedBox(),
+                iconEnabledColor: Colors.white,
+                items: const [
+                  DropdownMenuItem(value: 'All Modalities', child: Text('All Modalities')),
+                  DropdownMenuItem(value: 'MRI', child: Text('MRI')),
+                  DropdownMenuItem(value: 'CT', child: Text('CT')),
+                  DropdownMenuItem(value: 'XRAY', child: Text('X-RAY')),
+                  DropdownMenuItem(value: 'ULTRASOUND', child: Text('ULTRASOUND')),
+                ],
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
   }
+
 
   Widget _buildViewToggle(ViewType view, String label) {
     final selected = _currentView == view;

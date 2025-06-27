@@ -17,4 +17,10 @@ class MainColors {
   static const userProfile = Color(0xFF4B5563);
   static const dividerLine = Color(0xFF374151);
   static const selectedTab = Color(0xFF1767F9);
+  // schedule 탭에서 진료 항목별 색깔
+  static final mriAppointment = Colors.blue.shade700; // mri
+  static final ctAppointment = Colors.green.shade700; // ct
+  static final xRayAppointment = Colors.amber.shade700; // x-ray
+  static final ultrasoundAppointment = Colors.purple.shade700; // ultrasound
+  static final defaultAppointment = Colors.grey.shade700; // 기타
 }
