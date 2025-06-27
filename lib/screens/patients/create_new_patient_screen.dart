@@ -65,15 +65,6 @@ class _CreateNewPatientScreenState extends State<CreateNewPatientScreen> {
                           ),
                         ),
                       ),
-                      Gaps.v20,
-                      const Text(
-                        'Create New Patient',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500),
-                      ),
                     ],
                   ),
                 ),

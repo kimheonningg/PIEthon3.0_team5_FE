@@ -82,11 +82,16 @@ class _SideNavigationBarState extends State<SideNavigationBar> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              "멋진 로고",
-              style: TextStyle(fontSize: 26),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+            child: Row(
+              children: [
+                Gaps.h4,
+                Image.asset(
+                  'assets/images/logo.png',
+                  scale: 4,
+                ),
+              ],
             ),
           ),
           //구분선
