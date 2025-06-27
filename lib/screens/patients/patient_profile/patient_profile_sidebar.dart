@@ -81,15 +81,7 @@ class _PatientProfileSidebar extends State<PatientProfileSidebar> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      '2025-06-25',
-                      style: TextStyle(
-                        color: MainColors.sidebarItemText,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SectionTitle(title: 'Navigation'),
+                    const DateSection(title: '2025-06-25'),
                     Gaps.v10,
                     NavItem(
                       icon: Icons.people_outline,
@@ -115,11 +107,8 @@ class _PatientProfileSidebar extends State<PatientProfileSidebar> {
                       isSelected: _selectedIndex == 3,
                       onTap: () => setState(() => _selectedIndex = 3),
                     ),
-
                     Gaps.v30,
-
-                    // Workspace 섹션
-                    const SectionTitle(title: 'Workspace'),
+                    const DateSection(title: '2025-06-14'),
                     const SizedBox(height: 10),
                     NavItem(
                       icon: Icons.settings_outlined,
@@ -205,18 +194,14 @@ class _NavItemState extends State<NavItem> {
             children: [
               Icon(
                 widget.icon,
-                color: widget.isSelected
-                    ? MainColors.sidebarItemSelectedText
-                    : MainColors.sidebarItemText,
+                color: widget.isSelected ? MainColors.sidebarItemSelectedText : MainColors.sidebarItemText,
                 size: 16,
               ),
               Gaps.h12,
               Text(
                 widget.title,
                 style: TextStyle(
-                  color: widget.isSelected
-                      ? MainColors.sidebarItemSelectedText
-                      : MainColors.sidebarItemText,
+                  color: widget.isSelected ? MainColors.sidebarItemSelectedText : MainColors.sidebarItemText,
                   fontWeight: FontWeight.w400,
                   fontSize: 14,
                 ),
@@ -230,19 +215,28 @@ class _NavItemState extends State<NavItem> {
 }
 
 // 섹션 제목 위젯
-class SectionTitle extends StatelessWidget {
+class DateSection extends StatelessWidget {
   final String title;
-  const SectionTitle({super.key, required this.title});
+  const DateSection({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: const TextStyle(
-        color: MainColors.sidebarNameText,
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-      ),
+    return Row(
+      children: [
+        const Icon(
+          Icons.keyboard_arrow_down,
+          color: MainColors.sidebarNameText,
+        ),
+        Gaps.h4,
+        Text(
+          title,
+          style: const TextStyle(
+            color: MainColors.sidebarNameText,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 }
