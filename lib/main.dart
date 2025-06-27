@@ -35,6 +35,8 @@ class _MyAppState extends State<MyApp> {
         '/login/findID': (context) => const FindIdScreen(), //ID 찾기 화면
         '/login/changePW': (context) => const ChangePwScreen(), //비밀번호 재설정 화면
         '/patients': (context) => const PatientsScreen(), // 환자 보기 탭
+        '/profile/patient': (context) =>
+            const PatientProfileScreen(), // 환자 개별 보기
         '/patients/create': (context) =>
             const CreateNewPatientScreen(), // 환자 생성 화면
         '/profile/doctor': (context) =>
