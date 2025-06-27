@@ -6,7 +6,7 @@ import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
 import 'package:piethon_team5_fe/widgets/navigation_sidebar.dart';
 import 'package:piethon_team5_fe/functions/token_manager.dart';
-import 'package:piethon_team5_fe/screens/patients/create_new_patient.dart';
+import 'package:piethon_team5_fe/screens/patients/create_new_patient_screen.dart';
 
 class PatientsScreen extends StatefulWidget {
   const PatientsScreen({super.key});

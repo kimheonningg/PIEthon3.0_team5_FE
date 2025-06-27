@@ -3,7 +3,7 @@ import 'package:piethon_team5_fe/screens/login/change_pw_screen.dart';
 import 'package:piethon_team5_fe/screens/login/find_id_screen.dart';
 import 'package:piethon_team5_fe/screens/login/login_screen.dart';
 import 'package:piethon_team5_fe/screens/patients/patients_screen.dart';
-import 'package:piethon_team5_fe/screens/patients/create_new_patient.dart';
+import 'package:piethon_team5_fe/screens/patients/create_new_patient_screen.dart';
 import 'package:piethon_team5_fe/screens/register/register_screen.dart';
 import 'package:piethon_team5_fe/screens/profile/doctor_profile_screen.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
