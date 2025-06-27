@@ -28,6 +28,27 @@ class _SideNavigationBarState extends State<SideNavigationBar> {
     _loadProfile();
   }
 
+   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final path = ModalRoute.of(context)?.settings.name;
+
+    int newIndex = switch (path) {
+      '/patients' => 0,
+      '/schedule' => 1,
+      // '/reports' => 2,
+      // '/ai' => 3,
+      // '/settings' => 4,
+      // '/help' => 5,
+      _ => 0,
+    };
+
+    if (_selectedIndex != newIndex) {
+      setState(() {
+        _selectedIndex = newIndex;
+      });
+    }
+  }
 
   Future<void> _loadProfile() async {
     try {
@@ -112,13 +133,21 @@ class _SideNavigationBarState extends State<SideNavigationBar> {
                     icon: Icons.people_outline,
                     title: 'Patients',
                     isSelected: _selectedIndex == 0,
-                    onTap: () => setState(() => _selectedIndex = 0),
+                    onTap: () {
+                      setState(() => _selectedIndex = 0);
+                      Navigator.pushNamed(context, '/patients');
+                    },
                   ),
                   NavItem(
                     icon: Icons.calendar_today_outlined,
                     title: 'Schedule',
                     isSelected: _selectedIndex == 1,
-                    onTap: () => setState(() => _selectedIndex = 1),
+                    onTap: () {
+                      if (_selectedIndex != 1) {
+                        setState(() => _selectedIndex = 1);
+                        Navigator.pushNamed(context, '/schedule');
+                      }
+                    },
                   ),
                   NavItem(
                     icon: Icons.bar_chart_outlined,

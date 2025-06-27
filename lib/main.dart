@@ -7,6 +7,7 @@ import 'package:piethon_team5_fe/screens/patients/patients_screen.dart';
 import 'package:piethon_team5_fe/screens/patients/create_new_patient_screen.dart';
 import 'package:piethon_team5_fe/screens/register/register_screen.dart';
 import 'package:piethon_team5_fe/screens/profile/doctor_profile_screen.dart';
+import 'package:piethon_team5_fe/screens/schedule/schedule_screen.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
 
 void main() {
@@ -41,6 +42,7 @@ class _MyAppState extends State<MyApp> {
             const CreateNewPatientScreen(), // 환자 생성 화면
         '/profile/doctor': (context) =>
             const DoctorProfileScreen(), // 의사 프로필 화면
+        '/schedule': (context) => const ScheduleScreen(), // schedule 탭 클릭 시의 화면
       },
       theme: ThemeData(
         brightness: Brightness.dark,
