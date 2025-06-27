@@ -231,18 +231,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
               Gaps.v20,
               GestureDetector(
                 onTap: () async {
-                  final url = Uri.parse('$BASE_URL/register');
+                  final url = Uri.parse('$BASE_URL/auth/register');
                   final body = {
                     "email": _emailController.text,
-                    "phoneNum": _phoneNumController.text,
+                    "phone_num": _phoneNumController.text,
                     "name": {
-                      "firstName": _firstNameController.text,
-                      "lastName": _lastNameController.text,
+                      "first_name": _firstNameController.text,
+                      "last_name": _lastNameController.text,
                     },
-                    "userId": _idController.text,
+                    "user_id": _idController.text,
                     "password": _passwordController.text,
                     "position": "doctor",
-                    "licenceNum": _licenceNumController.text
+                    "licence_num": _licenceNumController.text
                   };
                   try {
                     final response = await http.post(
@@ -253,17 +253,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                     if (response.statusCode == 200 || response.statusCode == 201) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('회원가입 성공')),
+                        const SnackBar(content: Text('Registered successfully.')),
                       );
                       Navigator.pop(context);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('회원가입 실패: ${response.body}')),
+                        SnackBar(content: Text('Error in registering: ${response.body}')),
                       );
                     }
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('에러 발생: $e')),
+                      SnackBar(content: Text('Error in registering: $e')),
                     );
                   }
                 },

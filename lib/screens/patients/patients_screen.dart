@@ -6,6 +6,7 @@ import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
 import 'package:piethon_team5_fe/widgets/navigation_sidebar.dart';
 import 'package:piethon_team5_fe/functions/token_manager.dart';
+import 'package:piethon_team5_fe/screens/patients/create_new_patient.dart';
 
 class PatientsScreen extends StatefulWidget {
   const PatientsScreen({super.key});
@@ -18,18 +19,34 @@ class _PatientsScreenState extends State<PatientsScreen> {
   List<Map<String, dynamic>> _patientsInfo = [];
   bool _loading = true;
 
-  static const int _pageSize = 8;
+  // 검색 기능용
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
-  int get _totalPages => // page 개수 동적으로 조절
-      (_patientsInfo.length + _pageSize - 1) ~/ _pageSize;
+  static const int _pageSize = 8;
 
   int _currentPage = 1; // 1페이지부터 보여준다
 
-  List<Map<String, dynamic>> get _pageSlice {
-    final start = (_currentPage - 1) * _pageSize;
-    final end = (start + _pageSize).clamp(0, _patientsInfo.length);
-    return _patientsInfo.sublist(start, end);
+  // 검색은 이름, MRN, 전화번호로
+  List<Map<String, dynamic>> get _filteredPatients {
+    if (_searchQuery.isEmpty) return _patientsInfo;
+    return _patientsInfo.where((p) {
+      final query = _searchQuery.toLowerCase();
+      return p['name'].toLowerCase().contains(query) ||
+            p['mrn'].toLowerCase().contains(query) ||
+            p['phone_num'].toLowerCase().contains(query);
+    }).toList();
   }
+
+  List<Map<String, dynamic>> get _pageSlice {
+    final filtered = _filteredPatients;
+    final start = (_currentPage - 1) * _pageSize;
+    final end = (start + _pageSize).clamp(0, filtered.length);
+    if (start >= filtered.length) return [];
+    return filtered.sublist(start, end);
+  }
+
+  int get _totalPages => (_filteredPatients.length + _pageSize - 1) ~/ _pageSize;
 
   @override
   void initState() {
@@ -56,15 +73,16 @@ class _PatientsScreenState extends State<PatientsScreen> {
         final raw = List<Map<String, dynamic>>.from(json['patients']);
         final mapped = raw.map((p) {
           final nameMap = p['name'] as Map<String, dynamic>? ?? {};
-          final first = nameMap['firstName'] ?? '';
-          final last = nameMap['lastName'] ?? '';
+          final first = nameMap['first_name'] ?? '';
+          final last = nameMap['last_name'] ?? '';
           return {
             'name': '$last $first',
-            'patientId': p['patientId'] ?? '',
-            'phoneNum': p['phoneNum'] ?? '',
-            'doctorCnt': (p['doctorId'] as List).length,
-            'noteCnt': (p['medicalNotes'] as List).length,
-            'createdAt': p['createdAt'] ?? '',
+            'mrn': p['patient_mrn'] ?? '',
+            'phone_num': p['phone_num'] ?? '',
+            'age': p['age'] ?? '',
+            'doctor_name': p['doctor_name'],
+            'body_part': p['body_part'],
+            'ai_ready': p['ai_ready'] ?? true,
           };
         }).toList();
         setState(() {
@@ -119,6 +137,13 @@ class _PatientsScreenState extends State<PatientsScreen> {
                           SizedBox(
                             width: 256,
                             child: TextField(
+                              controller: _searchController,
+                              onChanged: (value) {
+                                setState(() {
+                                  _searchQuery = value;
+                                  _currentPage = 1; // 검색 시 첫 페이지로 이동
+                                });
+                              },
                               decoration: InputDecoration(
                                 hintText: 'Search patients...',
                                 hintStyle: const TextStyle(color: MainColors.hinttext),
@@ -155,7 +180,12 @@ class _PatientsScreenState extends State<PatientsScreen> {
                           const SizedBox(width: 16),
                           // + New Patient 버튼
                           ElevatedButton.icon(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const CreateNewPatientScreen()),
+                              );
+                            },
                             icon: const Icon(
                               Icons.add,
                               size: 18,
@@ -190,7 +220,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
                     children: [
                       Row(
                         children: [
-                          Text('${_patientsInfo.length} patient ${_patientsInfo.length == 1 ? '' : 's'}',
+                          Text('${_patientsInfo.length} patient${_patientsInfo.length == 1 ? '' : 's'}',
                               style: TextStyle(color: Colors.grey[400])),
                           const SizedBox(width: 16),
                           OutlinedButton.icon(
@@ -342,6 +372,14 @@ class PatientTable extends StatelessWidget {
         ],
         rows: data.map((p) {
           final initials = p['name'].toString().trim().split(RegExp(r'\s+')).take(2).map((s) => s[0].toUpperCase()).join();
+          final bodyPartRaw = p['body_part'];
+          final physicianRaw = p['doctor_name'];
+          final bodyPartStr = (bodyPartRaw is List)
+              ? bodyPartRaw.join('\n')
+              : (bodyPartRaw is String ? bodyPartRaw : '-');
+          final physicianStr = (physicianRaw is List)
+              ? physicianRaw.join('\n')
+              : (physicianRaw is String ? physicianRaw : '-');
 
           return DataRow(cells: [
             DataCell(Checkbox(
@@ -356,11 +394,17 @@ class PatientTable extends StatelessWidget {
               const SizedBox(width: 8),
               Text(p['name'], style: const TextStyle(color: Colors.white)),
             ])),
-            DataCell(Text(p['patientId'], style: const TextStyle(color: Colors.white))),
-            DataCell(Text(p['phoneNum'], style: const TextStyle(color: Colors.white))),
-            DataCell(Text('${p['doctorCnt']}', style: const TextStyle(color: Colors.white))),
-            DataCell(Text('${p['noteCnt']}', style: const TextStyle(color: Colors.white))),
-            DataCell(Text(p['createdAt'].toString().substring(0, 10), style: const TextStyle(color: Colors.white))),
+            DataCell(Text('${p['age']}', style: const TextStyle(color: Colors.white))),
+            DataCell(Text(p['mrn'], style: const TextStyle(color: Colors.white))),
+            DataCell(Text(
+              bodyPartStr,
+              style: const TextStyle(color: Colors.white),
+            )),
+            DataCell(Text(
+              physicianStr,
+              style: const TextStyle(color: Colors.white),
+            )),
+            DataCell(Text(p['ai_ready'].toString(), style: const TextStyle(color: Colors.white))),
             DataCell(IconButton(icon: const Icon(Icons.more_horiz, color: Colors.white), onPressed: () {})),
           ]);
         }).toList(),
@@ -388,14 +432,18 @@ class Pagination extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final start = (currentPage - 1) * pageSize + 1;
-    final end = (currentPage * pageSize).clamp(1, totalItems);
+    final start = totalItems == 0 ? 0 : (currentPage - 1) * pageSize + 1;
+    final end = totalItems == 0 ? 0 : (currentPage * pageSize).clamp(1, totalItems);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text('Showing $start-$end of $totalItems patient${totalItems == 1 ? '' : 's'}',
-            style: TextStyle(color: Colors.grey[400])),
+        Text(
+          totalItems == 0
+            ? 'No patients to show.'
+            : 'Showing $start-$end of $totalItems patient${totalItems == 1 ? '' : 's'}',
+          style: TextStyle(color: Colors.grey[400]),
+        ),
         Row(
           children: [
             TextButton(

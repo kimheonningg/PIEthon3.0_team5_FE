@@ -140,12 +140,12 @@ class _FindIdScreenState extends State<FindIdScreen> {
               Gaps.v20,
               GestureDetector(
                 onTap: () async {
-                  final url = Uri.parse('$BASE_URL/find_id');
+                  final url = Uri.parse('$BASE_URL/auth/find_id');
                   final body = {
-                    "phoneNum": _phoneNumController.text,
+                    "phone_num": _phoneNumController.text,
                     "name": {
-                      "firstName": _firstNameController.text,
-                      "lastName": _lastNameController.text,
+                      "first_name": _firstNameController.text,
+                      "last_name": _lastNameController.text,
                     },
                   };
 
@@ -159,7 +159,7 @@ class _FindIdScreenState extends State<FindIdScreen> {
                     final responseData = jsonDecode(response.body);
                     if (responseData["success"] == true) {
                       setState(() {
-                        _foundUserId = 'Your ID is: ${responseData["userId"]}.';
+                        _foundUserId = 'Your ID is: ${responseData["user_id"]}.';
                       });
                     } else {
                       setState(() {

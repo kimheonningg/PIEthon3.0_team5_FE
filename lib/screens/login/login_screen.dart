@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:piethon_team5_fe/const.dart';
 import 'package:piethon_team5_fe/functions/token_manager.dart';
+import 'package:piethon_team5_fe/functions/user_info_manager.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -112,9 +113,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 try {
                   final res = await http.post(
-                    Uri.parse('$BASE_URL/login'),
+                    Uri.parse('$BASE_URL/auth/login'),
                     headers: {'Content-Type': 'application/json'},
-                    body: jsonEncode({'userId': userId, 'password': password}),
+                    body: jsonEncode({'user_id': userId, 'password': password}),
                   );
 
                   if (res.statusCode == 200) {
@@ -127,6 +128,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     print("로그인 성공, token: $token");
                     await TokenManager.saveAccessToken(token);
+
+                    final userInfoRes = await http.get(
+                      Uri.parse('$BASE_URL/auth/user_info'),
+                      headers: {'Authorization': 'Bearer $token'},
+                    );
+
+                    if (userInfoRes.statusCode == 200) {
+                      final userInfo = jsonDecode(userInfoRes.body) as Map<String, dynamic>;
+                      await UserInfoManager.save(userInfo);
+                    } else {
+                      await TokenManager.clearAccessToken();
+                      throw Exception('Failed to fetch user info (${userInfoRes.statusCode})');
+                    }
 
                     if (!context.mounted) return;
                     Navigator.pushNamed(context, '/patients');
