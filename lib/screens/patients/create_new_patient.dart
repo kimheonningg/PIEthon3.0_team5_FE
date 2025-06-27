@@ -37,7 +37,7 @@ class _CreateNewPatientScreenState extends State<CreateNewPatientScreen> {
                         alignment: Alignment.centerLeft,
                         child: GestureDetector(
                         onTap: () {
-                            Navigator.pop(context);
+                            Navigator.pop(context, true);
                         },
                         child: Row(
                             mainAxisSize: MainAxisSize.min,

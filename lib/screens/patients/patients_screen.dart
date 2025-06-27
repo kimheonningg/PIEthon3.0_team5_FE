@@ -181,10 +181,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
                           // + New Patient 버튼
                           ElevatedButton.icon(
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const CreateNewPatientScreen()),
-                              );
+                              Navigator.pushNamed(context, '/patients/create');
                             },
                             icon: const Icon(
                               Icons.add,
@@ -315,37 +312,6 @@ class PatientTable extends StatelessWidget {
   final List<Map<String, dynamic>> data;
   const PatientTable({super.key, required this.data});
 
-  // 샘플 데이터
-  final List<Map<String, dynamic>> patientData = const [
-    {
-      'name': 'Emily Browning',
-      'gender': 'Female',
-      'age': 42,
-      'mrn': 'MRN-78542',
-      'part': 'Brain',
-      'physician': 'Dr. James Wilson',
-      'ai_ready': true
-    },
-    {
-      'name': 'Robert Johnson',
-      'gender': 'Male',
-      'age': 65,
-      'mrn': 'MRN-23891',
-      'part': 'Spine',
-      'physician': 'Dr. Maria Rodriguez',
-      'ai_ready': true
-    },
-    {
-      'name': 'Sophia Liu',
-      'gender': 'Female',
-      'age': 28,
-      'mrn': 'MRN-45672',
-      'part': 'Knee',
-      'physician': 'Dr. Michael Thompson',
-      'ai_ready': false
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
     if (data.isEmpty) {
@@ -404,7 +370,14 @@ class PatientTable extends StatelessWidget {
               physicianStr,
               style: const TextStyle(color: Colors.white),
             )),
-            DataCell(Text(p['ai_ready'].toString(), style: const TextStyle(color: Colors.white))),
+            DataCell(
+              Center(
+                child: Icon(
+                  p['ai_ready'] == true ? Icons.check_circle : Icons.radio_button_unchecked,
+                  color: p['ai_ready'] == true ? MainColors.aiEnabled : Colors.grey,
+                ),
+              ),
+            ),
             DataCell(IconButton(icon: const Icon(Icons.more_horiz, color: Colors.white), onPressed: () {})),
           ]);
         }).toList(),
