@@ -10,6 +10,10 @@ class GraphView extends StatefulWidget {
 class _GraphViewState extends State<GraphView> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return const Scaffold(
+      body: Center(
+        child: Text('멋진 그래프 뷰가 들어갈 예정'),
+      ),
+    );
   }
 }

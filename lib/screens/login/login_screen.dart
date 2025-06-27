@@ -106,7 +106,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 if (userId.isEmpty || password.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Please enter your ID and your password")),
+                    const SnackBar(
+                        content:
+                            Text("Please enter your ID and your password")),
                   );
                   return;
                 }
@@ -135,24 +137,29 @@ class _LoginScreenState extends State<LoginScreen> {
                     );
 
                     if (userInfoRes.statusCode == 200) {
-                      final userInfo = jsonDecode(userInfoRes.body) as Map<String, dynamic>;
+                      final userInfo =
+                          jsonDecode(userInfoRes.body) as Map<String, dynamic>;
                       await UserInfoManager.save(userInfo);
                     } else {
                       await TokenManager.clearAccessToken();
-                      throw Exception('Failed to fetch user info (${userInfoRes.statusCode})');
+                      throw Exception(
+                          'Failed to fetch user info (${userInfoRes.statusCode})');
                     }
 
                     if (!context.mounted) return;
                     Navigator.pushNamed(context, '/patients');
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Failed to login: please check your ID or your password.")),
+                      const SnackBar(
+                          content: Text(
+                              "Failed to login: please check your ID or your password.")),
                     );
                   }
                 } catch (e) {
                   print("에러 발생: $e");
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Error in connecting server.")),
+                    const SnackBar(
+                        content: Text("Error in connecting server.")),
                   );
                 }
               },
