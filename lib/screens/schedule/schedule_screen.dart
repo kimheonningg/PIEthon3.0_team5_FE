@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:piethon_team5_fe/const.dart';
 import 'package:piethon_team5_fe/widgets/navigation_sidebar.dart';
 import 'package:piethon_team5_fe/widgets/schedule/day_view.dart';
 import 'package:piethon_team5_fe/widgets/schedule/week_view.dart';
 import 'package:piethon_team5_fe/widgets/schedule/month_view.dart';
 import 'package:piethon_team5_fe/models/appointment.dart';
-import 'package:intl/intl.dart';
+import 'package:piethon_team5_fe/functions/token_manager.dart';
 
 enum ViewType { day, week, month }
 
@@ -16,25 +20,48 @@ class ScheduleScreen extends StatefulWidget {
 }
 
 class _ScheduleScreenState extends State<ScheduleScreen> {
-  ViewType _currentView = ViewType.month;
-  DateTime _currentDate = DateTime(2025, 6, 25);
+  List<Appointment> _appointments = [];
 
-  final List<Appointment> _appointments = [
-    Appointment(
-      patientName: 'Emily Browning',
-      appointmentDetail: 'Brain MRI',
-      startTime: DateTime(2025, 6, 28, 8, 0),
-      finishTime: DateTime(2025, 6, 28, 9, 0),
-      color: Colors.indigo,
-    ),
-    Appointment(
-      patientName: 'Robert Johnson',
-      appointmentDetail: 'Spine CT',
-      startTime: DateTime(2025, 6, 30, 8, 0),
-      finishTime: DateTime(2025, 6, 30, 9, 0),
-      color: Colors.teal,
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _fetchAppointments();
+  }
+
+  Future<void> _fetchAppointments() async {
+    final token = await TokenManager.getAccessToken();
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar( content: Text('Login required. Please sign in again.')),
+      );
+      return;
+    }
+    final url = Uri.parse('$BASE_URL/patients/create');
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+    final response = await http.get(
+      Uri.parse('$BASE_URL/appointments'),
+      headers: headers
+    );
+    if (response.statusCode == 200) {
+      final jsonBody = jsonDecode(response.body);
+      final items = jsonBody['appointments'] as List;
+      print('jsonBody');
+      print(jsonBody);
+      setState(() {
+        _appointments = items.map((e) => Appointment.fromJson(e)).toList();
+      });
+    } else {
+      print('Failed to load appointments');
+      print('Status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+    }
+  }
+
+  ViewType _currentView = ViewType.month;
+  DateTime _currentDate = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
