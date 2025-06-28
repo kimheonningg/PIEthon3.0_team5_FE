@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:piethon_team5_fe/provider/mainview_tab_provider.dart';
 import 'package:piethon_team5_fe/screens/login/change_pw_screen.dart';
 import 'package:piethon_team5_fe/screens/login/find_id_screen.dart';
 import 'package:piethon_team5_fe/screens/login/login_screen.dart';
@@ -10,6 +11,7 @@ import 'package:piethon_team5_fe/screens/profile/doctor_profile_screen.dart';
 import 'package:piethon_team5_fe/screens/schedule/schedule_screen.dart';
 import 'package:piethon_team5_fe/screens/schedule/create_schedule_screen.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -49,7 +51,10 @@ class _MyAppState extends State<MyApp> {
         if (name.startsWith('/profile/patient/')) {
           final mrn = name.substring('/profile/patient/'.length);
           return MaterialPageRoute(
-            builder: (_) => PatientProfileScreen(mrn: mrn),
+            builder: (_) => ChangeNotifierProvider(
+                //provider를 사용해야 함
+                create: (context) => MainviewTabProvider(),
+                child: PatientProfileScreen(mrn: mrn)),
             settings: settings,
           );
         }

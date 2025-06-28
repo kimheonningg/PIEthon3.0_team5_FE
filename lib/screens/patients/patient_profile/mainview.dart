@@ -19,26 +19,35 @@ class Mainview extends StatefulWidget {
   State<Mainview> createState() => _MainviewState();
 }
 
-class _MainviewState extends State<Mainview> with TickerProviderStateMixin {
+class _MainviewState extends State<Mainview> with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   final List<String> _tabs = ['Overview', 'Medical History', 'Imaging', 'Treatment Plans', 'Clinical Notes'];
-  // final Map<String, Widget> _tabWidgets = {
-  //   'Overview': const MainviewOverview(),
-  //   'Medical History': const MainviewMedicalHistory(),
-  //   'Imaging': const MainviewImaging(),
-  //   'Treatment Plans': const MainviewTreatmentPlans(),
-  //   'Clinical Notes': const MainviewClinicalNotes(),
-  // };
-
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _tabs.length, vsync: this);
+    final provider = context.read<MainviewTabProvider>();
+    final initialIndex = _tabs.indexOf(provider.currentTabName);
+    _tabController = TabController(length: _tabs.length, vsync: this, initialIndex: initialIndex);
+
+    // 2. TabController에 리스너를 추가하여 사용자 클릭을 감지하고 Provider를 업데이트합니다.
+    _tabController.addListener(() {
+      // 애니메이션 중간에 여러 번 호출되는 것을 방지합니다.
+      if (!_tabController.indexIsChanging) {
+        final newTabName = _tabs[_tabController.index];
+        if (provider.currentTabName != newTabName) {
+          context.read<MainviewTabProvider>().changeTab(newTabName);
+        }
+      }
+    });
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final patient = widget.patientInfo;
 
     final rawDob = patient['birthdate'];
@@ -133,8 +142,10 @@ class _MainviewState extends State<Mainview> with TickerProviderStateMixin {
               Gaps.v24,
               Expanded(
                 child: Consumer<MainviewTabProvider>(builder: (context, provider, child) {
-                  _tabController.index = _tabs.indexOf(provider.currentTabName);
-
+                  final providerIndex = _tabs.indexOf(provider.currentTabName);
+                  if (_tabController.index != providerIndex) {
+                    _tabController.animateTo(providerIndex);
+                  }
                   return DefaultTabController(
                     length: _tabs.length,
                     child: Scaffold(
@@ -153,7 +164,7 @@ class _MainviewState extends State<Mainview> with TickerProviderStateMixin {
                       body: TabBarView(
                         controller: _tabController,
                         physics: const NeverScrollableScrollPhysics(),
-                        children:  [
+                        children: [
                           MainviewOverview(patientMrn: patient['mrn']),
                           const MainviewMedicalHistory(),
                           const MainviewImaging(),

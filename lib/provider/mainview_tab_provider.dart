@@ -7,9 +7,7 @@ class MainviewTabProvider with ChangeNotifier {
   List<String> get tabs => _tabs;
 
   void changeTab(String tabName) {
-    if (_currentTabName != tabName) {
-      _currentTabName = tabName;
-      notifyListeners();
-    }
+    _currentTabName = tabName;
+    notifyListeners();
   }
 }
