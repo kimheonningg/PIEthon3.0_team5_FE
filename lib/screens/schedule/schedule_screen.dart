@@ -9,6 +9,7 @@ import 'package:piethon_team5_fe/widgets/schedule/week_view.dart';
 import 'package:piethon_team5_fe/widgets/schedule/month_view.dart';
 import 'package:piethon_team5_fe/models/appointment.dart';
 import 'package:piethon_team5_fe/functions/token_manager.dart';
+import 'package:piethon_team5_fe/widgets/maincolors.dart';
 
 enum ViewType { day, week, month }
 
@@ -64,7 +65,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF111827),
+      backgroundColor: MainColors.background,
       body: Row(
         children: [
           const SideNavigationBar(),
