@@ -1,11 +1,38 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:piethon_team5_fe/const.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
+import 'package:piethon_team5_fe/functions/token_manager.dart';
+
+class Examination {
+  final String examinationTitle;
+  final DateTime examinationDate;
+  final String patientMrn;
+
+  Examination({
+    required this.examinationTitle,
+    required this.examinationDate,
+    required this.patientMrn,
+  });
+
+  factory Examination.fromJson(Map<String, dynamic> json) {
+    return Examination(
+      examinationTitle: json['examination_title'] ?? 'No Title',
+      examinationDate: DateTime.parse(json['examination_date']),
+      patientMrn: json['patient_mrn'] ?? '',
+    );
+  }
+}
 
 class MainviewOverview extends StatefulWidget {
-  const MainviewOverview({super.key});
+  final String patientMrn;
+
+  const MainviewOverview({super.key, required this.patientMrn});
 
   @override
   State<MainviewOverview> createState() => _MainviewOverviewState();
@@ -19,7 +46,6 @@ class _MainviewOverviewState extends State<MainviewOverview> {
         padding: const EdgeInsets.all(16),
         child: LayoutBuilder(
           builder: (context, constraints) {
-            // 너비에 맞춰서 한 열에 표시할 카드 개수 정하기
             final crossAxisCount = constraints.maxWidth > 1500
                 ? 3
                 : constraints.maxWidth > 700
@@ -29,12 +55,12 @@ class _MainviewOverviewState extends State<MainviewOverview> {
               crossAxisCount: crossAxisCount,
               mainAxisSpacing: 16,
               crossAxisSpacing: 16,
-              children: const [
-                StaggeredGridTile.fit(
+              children: [
+                const StaggeredGridTile.fit(
                   crossAxisCellCount: 1,
                   child: TreatmentPlanCard(),
                 ),
-                StaggeredGridTile.fit(
+                const StaggeredGridTile.fit(
                   crossAxisCellCount: 1,
                   child: ImagingCard(
                     isSuccess: true,
@@ -43,9 +69,9 @@ class _MainviewOverviewState extends State<MainviewOverview> {
                 ),
                 StaggeredGridTile.fit(
                   crossAxisCellCount: 1,
-                  child: RecentExaminationsCard(),
+                  child: RecentExaminationsCard(patientMrn: widget.patientMrn),
                 ),
-                StaggeredGridTile.fit(
+                const StaggeredGridTile.fit(
                   crossAxisCellCount: 1,
                   child: ImagingCard(
                     title: 'Imaging with AI Analysis: T2',
@@ -60,11 +86,10 @@ class _MainviewOverviewState extends State<MainviewOverview> {
   }
 }
 
-// 각 카드들의 부모 위젯
 class DashboardCard extends StatelessWidget {
   final String title;
   final Widget child;
-  final Widget? trailing; // 카드 제목 오른쪽에 들어갈 위젯 (아이콘 등)
+  final Widget? trailing;
 
   const DashboardCard({
     super.key,
@@ -76,14 +101,14 @@ class DashboardCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration:
-          BoxDecoration(border: Border.all(color: MainColors.dividerLine, width: 1), borderRadius: BorderRadius.circular(16)),
+      decoration: BoxDecoration(
+          border: Border.all(color: MainColors.dividerLine, width: 1),
+          borderRadius: BorderRadius.circular(16)),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 카드 제목 부분
             Container(
               color: Colors.transparent,
               padding: const EdgeInsets.all(16),
@@ -104,8 +129,10 @@ class DashboardCard extends StatelessWidget {
                 ],
               ),
             ),
-            // 카드 내용 부분
-            Container(padding: const EdgeInsets.all(16), color: MainColors.sidebarBackground, child: child),
+            Container(
+                padding: const EdgeInsets.all(16),
+                color: MainColors.sidebarBackground,
+                child: child),
           ],
         ),
       ),
@@ -126,11 +153,18 @@ class TreatmentPlanCard extends StatelessWidget {
         children: [
           const Padding(
             padding: EdgeInsets.only(bottom: 8.0),
-            child: Text('Medications', style: TextStyle(color: Colors.grey, fontSize: 14, fontWeight: FontWeight.w600)),
+            child: Text('Medications',
+                style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600)),
           ),
-          _buildListItem(Icons.medication_outlined, 'Albuterol Inhaler', '2 puffs every 4-6 hours as needed'),
-          _buildListItem(Icons.medication_outlined, 'Fluticasone Propionate', '2 puffs twice daily'),
-          _buildListItem(Icons.medication_outlined, 'Montelukast', '10mg once daily at bedtime'),
+          _buildListItem(Icons.medication_outlined, 'Albuterol Inhaler',
+              '2 puffs every 4-6 hours as needed'),
+          _buildListItem(Icons.medication_outlined, 'Fluticasone Propionate',
+              '2 puffs twice daily'),
+          _buildListItem(
+              Icons.medication_outlined, 'Montelukast', '10mg once daily at bedtime'),
           Gaps.v8,
           const Divider(
             color: MainColors.dividerLine,
@@ -138,7 +172,8 @@ class TreatmentPlanCard extends StatelessWidget {
           ),
           Gaps.v8,
           _buildSectionTitle('Follow-up'),
-          _buildListItem(Icons.calendar_today_outlined, 'Pulmonology Appointment', 'July 10, 2025 at 2:30 PM'),
+          _buildListItem(Icons.calendar_today_outlined,
+              'Pulmonology Appointment', 'July 10, 2025 at 2:30 PM'),
         ],
       ),
     );
@@ -147,7 +182,9 @@ class TreatmentPlanCard extends StatelessWidget {
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(title, style: const TextStyle(color: Colors.grey, fontSize: 14, fontWeight: FontWeight.w600)),
+      child: Text(title,
+          style: const TextStyle(
+              color: Colors.grey, fontSize: 14, fontWeight: FontWeight.w600)),
     );
   }
 
@@ -174,36 +211,77 @@ class TreatmentPlanCard extends StatelessWidget {
   }
 }
 
-////// Recent Examination
-class RecentExaminationsCard extends StatelessWidget {
-  const RecentExaminationsCard({super.key});
+////// Recent Examination (이 위젯은 이전 답변에서 완성된 상태로, 변경 없음)
+class RecentExaminationsCard extends StatefulWidget {
+  final String patientMrn;
+  const RecentExaminationsCard({super.key, required this.patientMrn});
+
+  @override
+  State<RecentExaminationsCard> createState() => _RecentExaminationsCardState();
+}
+
+class _RecentExaminationsCardState extends State<RecentExaminationsCard> {
+  late Future<List<Examination>> _examinationsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _examinationsFuture = _fetchExaminations(widget.patientMrn);
+  }
+
+  Future<List<Examination>> _fetchExaminations(String mrn) async {
+    final token = await TokenManager.getAccessToken();
+    if (token == null) throw Exception('Token not found.');
+
+    final response = await http.get(
+      Uri.parse('$BASE_URL/examinations/$mrn'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> body = jsonDecode(utf8.decode(response.bodyBytes));
+      return body.map((dynamic item) => Examination.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load examinations: ${response.statusCode}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return DashboardCard(
       title: 'Recent Examinations',
-      child: Column(
-        children: [
-          _buildExaminationItem(title: 'Chest MRI', date: 'June 14, 2025', doctor: 'Dr. James Wilson', isCurrent: true),
-          const SizedBox(height: 24),
-          _buildExaminationItem(
-            title: 'Complete Blood Count',
-            date: 'June 14, 2025',
-            doctor: 'Dr. Patricia Chen',
-          ),
-          const SizedBox(height: 24),
-          _buildExaminationItem(
-            title: 'Chest CT',
-            date: 'May 2, 2025',
-            doctor: 'Dr. James Wilson',
-          ),
-          const SizedBox(height: 24),
-          _buildExaminationItem(
-            title: 'Pulmonary Function Test',
-            date: 'March 18, 2025',
-            doctor: 'Dr. Robert Johnson',
-          ),
-        ],
+      child: FutureBuilder<List<Examination>>(
+        future: _examinationsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No recent examinations found.'));
+          }
+
+          final examinations = snapshot.data!;
+          return ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: examinations.length,
+            itemBuilder: (context, index) {
+              final exam = examinations[index];
+              return _buildExaminationItem(
+                title: exam.examinationTitle,
+                date: DateFormat('MMMM d, yyyy').format(exam.examinationDate),
+                isCurrent: index == 0,
+              );
+            },
+            separatorBuilder: (context, index) => const SizedBox(height: 24),
+          );
+        },
       ),
     );
   }
@@ -211,46 +289,35 @@ class RecentExaminationsCard extends StatelessWidget {
   Widget _buildExaminationItem({
     required String title,
     required String date,
-    required String doctor,
     bool isCurrent = false,
   }) {
-    // IntrinsicHeight: 자식들이 가진 고유의 높이만큼만 차지하도록 하여,
-    // Row 내부의 위젯들이 모두 같은 높이를 갖게 만듭니다.
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // 왼쪽의 세로 막대
           Container(
             width: 4,
-            color: isCurrent ? MainColors.sidebarItemSelectedText : MainColors.sidebarNameText,
+            color: isCurrent
+                ? MainColors.sidebarItemSelectedText
+                : MainColors.sidebarNameText,
           ),
           Gaps.h12,
-          // 오른쪽의 텍스트 영역
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   title,
-                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
                 ),
                 Gaps.v4,
                 Text(
                   date,
                   style: TextStyle(color: Colors.grey[400], fontSize: 12),
-                ),
-                Gaps.v8,
-                Row(
-                  children: [
-                    Icon(Icons.person_outline,
-                        color: isCurrent ? MainColors.sidebarItemSelectedText : Colors.grey[400], size: 14),
-                    Gaps.h4,
-                    Text(
-                      doctor,
-                      style: TextStyle(color: Colors.grey[400], fontSize: 12),
-                    ),
-                  ],
                 ),
               ],
             ),
@@ -260,9 +327,8 @@ class RecentExaminationsCard extends StatelessWidget {
     );
   }
 }
-//////////////
 
-///// Imaging Card
+///// Imaging Card (변경 없음)
 class ImagingCard extends StatelessWidget {
   final String title;
   final bool isSuccess;
@@ -314,7 +380,8 @@ class ImagingCard extends StatelessWidget {
                           ),
                         ),
                         backgroundColor: Color(0xEEFFFFFF),
-                        labelStyle: TextStyle(color: Colors.white, fontSize: 10),
+                        labelStyle:
+                            TextStyle(color: Colors.white, fontSize: 10),
                         padding: EdgeInsets.zero,
                       ),
                     ),
@@ -327,7 +394,8 @@ class ImagingCard extends StatelessWidget {
                     TextButton.icon(
                       style: const ButtonStyle(
                         iconColor: WidgetStatePropertyAll(Colors.white),
-                        backgroundColor: WidgetStatePropertyAll(MainColors.background),
+                        backgroundColor:
+                            WidgetStatePropertyAll(MainColors.background),
                       ),
                       icon: const Icon(Icons.image_outlined, size: 16),
                       label: const Text(
@@ -377,14 +445,23 @@ class ImagingCard extends StatelessWidget {
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('AI Analysis Results', style: TextStyle(fontWeight: FontWeight.bold, color: MainColors.sidebarItemText)),
+                  Text('AI Analysis Results',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: MainColors.sidebarItemText)),
                   Gaps.v4,
-                  Text('A 1.8 cm nodule detected...', style: TextStyle(color: MainColors.sidebarItemText, fontSize: 14)),
+                  Text('A 1.8 cm nodule detected...',
+                      style: TextStyle(
+                          color: MainColors.sidebarItemText, fontSize: 14)),
                   Gaps.v16,
                   Text('Comparison with Previous Studies',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: MainColors.sidebarItemText)),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: MainColors.sidebarItemText)),
                   Gaps.v4,
-                  Text('Nodule has increased in size...', style: TextStyle(color: MainColors.sidebarItemText, fontSize: 14)),
+                  Text('Nodule has increased in size...',
+                      style: TextStyle(
+                          color: MainColors.sidebarItemText, fontSize: 14)),
                 ],
               ),
             ),
