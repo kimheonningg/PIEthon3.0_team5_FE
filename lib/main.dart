@@ -36,12 +36,9 @@ class _MyAppState extends State<MyApp> {
         '/login/findID': (context) => const FindIdScreen(), //ID 찾기 화면
         '/login/changePW': (context) => const ChangePwScreen(), //비밀번호 재설정 화면
         '/patients': (context) => const PatientsScreen(), // 환자 보기 탭
-        '/profile/patient': (context) =>
-            const PatientProfileScreen(), // 환자 개별 보기
-        '/patients/create': (context) =>
-            const CreateNewPatientScreen(), // 환자 생성 화면
-        '/profile/doctor': (context) =>
-            const DoctorProfileScreen(), // 의사 프로필 화면
+        '/profile/patient': (context) => const PatientProfileScreen(), // 환자 개별 보기
+        '/patients/create': (context) => const CreateNewPatientScreen(), // 환자 생성 화면
+        '/profile/doctor': (context) => const DoctorProfileScreen(), // 의사 프로필 화면
         '/schedule': (context) => const ScheduleScreen(), // schedule 탭 클릭 시의 화면
       },
       theme: ThemeData(

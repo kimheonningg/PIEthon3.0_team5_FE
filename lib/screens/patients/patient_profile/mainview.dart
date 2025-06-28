@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:piethon_team5_fe/provider/mainview_tab_provider.dart';
 import 'package:piethon_team5_fe/screens/patients/patient_profile/mainview_contents/mainview_clinical_notes.dart';
 import 'package:piethon_team5_fe/screens/patients/patient_profile/mainview_contents/mainview_imaging.dart';
 import 'package:piethon_team5_fe/screens/patients/patient_profile/mainview_contents/mainview_medical_history.dart';
@@ -6,6 +7,7 @@ import 'package:piethon_team5_fe/screens/patients/patient_profile/mainview_conte
 import 'package:piethon_team5_fe/screens/patients/patient_profile/mainview_contents/mainview_treatment_plans.dart';
 import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
+import 'package:provider/provider.dart';
 
 class Mainview extends StatefulWidget {
   const Mainview({super.key});
@@ -14,7 +16,7 @@ class Mainview extends StatefulWidget {
   State<Mainview> createState() => _MainviewState();
 }
 
-class _MainviewState extends State<Mainview> {
+class _MainviewState extends State<Mainview> with TickerProviderStateMixin {
   final List<String> _tabs = ['Overview', 'Medical History', 'Imaging', 'Treatment Plans', 'Clinical Notes'];
   final Map<String, Widget> _tabWidgets = {
     'Overview': const MainviewOverview(),
@@ -23,6 +25,14 @@ class _MainviewState extends State<Mainview> {
     'Treatment Plans': const MainviewTreatmentPlans(),
     'Clinical Notes': const MainviewClinicalNotes(),
   };
+
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: _tabs.length, vsync: this);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,37 +143,48 @@ class _MainviewState extends State<Mainview> {
               Gaps.v24,
 
               Expanded(
-                child: DefaultTabController(
-                  length: _tabs.length, // 탭의 총 개수
-                  child: Scaffold(
-                    appBar: AppBar(
-                      toolbarHeight: 0,
-                      automaticallyImplyLeading: false,
-                      backgroundColor: MainColors.background,
-                      bottom: TabBar(
-                        isScrollable: true, // 각 탭이 내용에 맞는 너비를 갖도록 설정
-                        tabAlignment: TabAlignment.start,
-                        labelColor: MainColors.selectedTab,
-                        unselectedLabelColor: MainColors.sidebarNameText,
-                        labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
-                        indicatorColor: MainColors.selectedTab,
+                child: Consumer<MainviewTabProvider>(
+                  builder: (context, provider, child) {
+                    _tabController.index = _tabs.indexOf(provider.currentTabName);
 
-                        indicator: const UnderlineTabIndicator(
-                          borderSide: BorderSide(width: 2.0, color: MainColors.selectedTab),
+                    return DefaultTabController(
+                      length: _tabs.length, // 탭의 총 개수
+                      child: Scaffold(
+                        appBar: AppBar(
+                          toolbarHeight: 0,
+                          automaticallyImplyLeading: false,
+                          backgroundColor: MainColors.background,
+                          bottom: TabBar(
+                            controller: _tabController,
+                            onTap: (index) {
+                              provider.changeTab(_tabs[index]);
+                            },
+                            isScrollable: true, // 각 탭이 내용에 맞는 너비를 갖도록 설정
+                            tabAlignment: TabAlignment.start,
+                            labelColor: MainColors.selectedTab,
+                            unselectedLabelColor: MainColors.sidebarNameText,
+                            labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
+                            indicatorColor: MainColors.selectedTab,
+
+                            indicator: const UnderlineTabIndicator(
+                              borderSide: BorderSide(width: 2.0, color: MainColors.selectedTab),
+                            ),
+
+                            tabs: _tabs.map((String name) => Tab(text: name)).toList(),
+                          ),
                         ),
-
-                        tabs: _tabs.map((String name) => Tab(text: name)).toList(),
+                        // TabBar의 각 탭에 해당하는 내용을 보여주는 부분
+                        body: TabBarView(
+                          controller: _tabController,
+                          physics: const NeverScrollableScrollPhysics(),
+                          children: _tabs.map((String name) {
+                            return _tabWidgets[name]!;
+                          }).toList(),
+                        ),
                       ),
-                    ),
-                    // TabBar의 각 탭에 해당하는 내용을 보여주는 부분
-                    body: TabBarView(
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: _tabs.map((String name) {
-                        return _tabWidgets[name]!;
-                      }).toList(),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
 

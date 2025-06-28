@@ -1,20 +1,20 @@
 // Navigation Sidebar 위젯
 import 'package:flutter/material.dart';
+import 'package:piethon_team5_fe/provider/mainview_tab_provider.dart';
 import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
+import 'package:provider/provider.dart';
 
 class PatientProfileSidebar extends StatefulWidget {
-  const PatientProfileSidebar({super.key});
+  const PatientProfileSidebar({
+    super.key,
+  });
 
   @override
   State<PatientProfileSidebar> createState() => _PatientProfileSidebar();
 }
 
 class _PatientProfileSidebar extends State<PatientProfileSidebar> {
-  // 현재 선택된 메뉴의 인덱스를 저장하는 변수
-  // 0: Patients, 1: Schedule, ..., 4: Settings, 5: Help
-  int _selectedIndex = 0;
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -74,63 +74,25 @@ class _PatientProfileSidebar extends State<PatientProfileSidebar> {
             color: const Color(0xFF374151),
           ),
           // Navigation 섹션
-          Expanded(
+          const Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(16.0),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const DateSection(title: '2025-06-25'),
-                    Gaps.v10,
-                    NavItem(
-                      icon: Icons.people_outline,
-                      title: 'Patients',
-                      isSelected: _selectedIndex == 0,
-                      onTap: () => setState(() => _selectedIndex = 0),
-                    ),
-                    NavItem(
-                      icon: Icons.calendar_today_outlined,
-                      title: 'Schedule',
-                      isSelected: _selectedIndex == 1,
-                      onTap: () => setState(() => _selectedIndex = 1),
-                    ),
-                    NavItem(
-                      icon: Icons.bar_chart_outlined,
-                      title: 'Reports',
-                      isSelected: _selectedIndex == 2,
-                      onTap: () => setState(() => _selectedIndex = 2),
-                    ),
-                    NavItem(
-                      icon: Icons.camera_alt_outlined,
-                      title: 'AI Tools',
-                      isSelected: _selectedIndex == 3,
-                      onTap: () => setState(() => _selectedIndex = 3),
-                    ),
-                    Gaps.v30,
-                    const DateSection(title: '2025-06-14'),
-                    const SizedBox(height: 10),
-                    NavItem(
-                      icon: Icons.settings_outlined,
-                      title: 'Settings',
-                      isSelected: _selectedIndex == 4,
-                      onTap: () => setState(() => _selectedIndex = 4),
-                    ),
-                    NavItem(
-                      icon: Icons.help_outline,
-                      title: 'Help',
-                      isSelected: _selectedIndex == 5,
-                      onTap: () => setState(() => _selectedIndex = 5),
-                    ),
+                    PatientHistoryItem(title: '2025-06-25'),
+                    Gaps.v8,
+                    PatientHistoryItem(title: '2025-06-14'),
                   ],
                 ),
               ),
             ),
           ),
           //구분선
-          Container(
+          const Divider(
+            color: MainColors.dividerLine,
             height: 1,
-            color: const Color(0xFF374151),
           ),
           const Padding(
             padding: EdgeInsets.all(16.0),
@@ -145,18 +107,96 @@ class _PatientProfileSidebar extends State<PatientProfileSidebar> {
   }
 }
 
+// 섹션 제목 위젯
+class PatientHistoryItem extends StatefulWidget {
+  final String title;
+  const PatientHistoryItem({super.key, required this.title});
+
+  @override
+  State<PatientHistoryItem> createState() => _PatientHistoryItemState();
+}
+
+class _PatientHistoryItemState extends State<PatientHistoryItem> {
+  bool _isFold = true;
+
+  @override
+  Widget build(BuildContext context) {
+    final mainviewTabProvider = context.read<MainviewTabProvider>();
+    return Column(
+      children: [
+        InkWell(
+          onTap: () {
+            setState(() {
+              _isFold = !_isFold;
+            });
+          },
+          child: Row(
+            children: [
+              Icon(
+                _isFold ? Icons.keyboard_arrow_right : Icons.keyboard_arrow_down,
+                color: MainColors.sidebarNameText,
+              ),
+              Gaps.h4,
+              Text(
+                widget.title,
+                style: const TextStyle(
+                  color: MainColors.sidebarNameText,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+        _isFold
+            ? const SizedBox()
+            : Column(
+                children: [
+                  NavItem(
+                    icon: Icons.people_outline,
+                    title: 'Clinical Notes',
+                    onTap: () {
+                      mainviewTabProvider.changeTab('Clinical Notes');
+                    },
+                  ),
+                  NavItem(
+                    icon: Icons.calendar_today_outlined,
+                    title: 'Medications',
+                    onTap: () {
+                      mainviewTabProvider.changeTab('Treatment Plans');
+                    },
+                  ),
+                  NavItem(
+                    icon: Icons.bar_chart_outlined,
+                    title: 'Chest MRI',
+                    onTap: () {
+                      mainviewTabProvider.changeTab('Imaging');
+                    },
+                  ),
+                  NavItem(
+                    icon: Icons.camera_alt_outlined,
+                    title: 'Chest CT',
+                    onTap: () {
+                      mainviewTabProvider.changeTab('Imaging');
+                    },
+                  ),
+                ],
+              ),
+      ],
+    );
+  }
+}
+
 // 네비게이션 메뉴 아이템 위젯
 class NavItem extends StatefulWidget {
   final IconData icon;
   final String title;
-  final bool isSelected;
   final VoidCallback onTap;
 
   const NavItem({
     super.key,
     required this.icon,
     required this.title,
-    required this.isSelected,
     required this.onTap,
   });
 
@@ -179,14 +219,9 @@ class _NavItemState extends State<NavItem> {
           });
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            // isSelected가 true이면 파란색, isHovering이 true이면 연한 회색, 둘 다 아니면 투명
-            color: widget.isSelected
-                ? MainColors.sidebarItemSelectedBackground
-                : _isHovering
-                    ? Colors.white.withOpacity(0.1)
-                    : Colors.transparent,
+            color: _isHovering ? Colors.white.withOpacity(0.1) : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
@@ -194,14 +229,14 @@ class _NavItemState extends State<NavItem> {
             children: [
               Icon(
                 widget.icon,
-                color: widget.isSelected ? MainColors.sidebarItemSelectedText : MainColors.sidebarItemText,
+                color: MainColors.sidebarItemText,
                 size: 16,
               ),
               Gaps.h12,
               Text(
                 widget.title,
-                style: TextStyle(
-                  color: widget.isSelected ? MainColors.sidebarItemSelectedText : MainColors.sidebarItemText,
+                style: const TextStyle(
+                  color: MainColors.sidebarItemText,
                   fontWeight: FontWeight.w400,
                   fontSize: 14,
                 ),
@@ -210,33 +245,6 @@ class _NavItemState extends State<NavItem> {
           ),
         ),
       ),
-    );
-  }
-}
-
-// 섹션 제목 위젯
-class DateSection extends StatelessWidget {
-  final String title;
-  const DateSection({super.key, required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Icon(
-          Icons.keyboard_arrow_down,
-          color: MainColors.sidebarNameText,
-        ),
-        Gaps.h4,
-        Text(
-          title,
-          style: const TextStyle(
-            color: MainColors.sidebarNameText,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
     );
   }
 }
