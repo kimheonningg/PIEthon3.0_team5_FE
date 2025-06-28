@@ -303,72 +303,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
                 Gaps.v24,
                 // 환자 목록 테이블 (Expanded로 남는 공간을 모두 채움)
                 Expanded(
-                  child: _pageSlice.isEmpty
-                      ? const Center(
-                          child: Text('No assigned patients.', style: TextStyle(color: Colors.white)),
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: DataTable(
-                            dataRowColor: WidgetStateProperty.all(Colors.transparent),
-                            headingRowColor: WidgetStateProperty.all(Colors.transparent),
-                            headingTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                            columns: const [
-                              DataColumn(label: Text(' ')), // 체크박스용
-                              DataColumn(label: Row(children: [Text('Name'), Icon(Icons.arrow_downward, size: 16)])),
-                              DataColumn(label: Row(children: [Text('Age'), Icon(Icons.arrow_downward, size: 16)])),
-                              DataColumn(label: Row(children: [Text('MRN'), Icon(Icons.arrow_downward, size: 16)])),
-                              DataColumn(label: Row(children: [Text('Body Part'), Icon(Icons.arrow_downward, size: 16)])),
-                              DataColumn(label: Row(children: [Text('Physician'), Icon(Icons.arrow_downward, size: 16)])),
-                              DataColumn(label: Text('AI Ready')),
-                              DataColumn(label: Text(' ')), // 점 3개 메뉴용
-                            ],
-                            rows: _pageSlice.map((p) {
-                              final initials =
-                                  p['name'].toString().trim().split(RegExp(r'\s+')).take(2).map((s) => s[0].toUpperCase()).join();
-                              final bodyPartRaw = p['body_part'];
-                              final physicianRaw = p['doctor_name'];
-                              final bodyPartStr =
-                                  (bodyPartRaw is List) ? bodyPartRaw.join('\n') : (bodyPartRaw is String ? bodyPartRaw : '-');
-                              final physicianStr = (physicianRaw is List)
-                                  ? physicianRaw.join('\n')
-                                  : (physicianRaw is String ? physicianRaw : '-');
-
-                              return DataRow(
-                                  onSelectChanged: (_) {
-                                    Navigator.pushNamed(context, '/profile/patient/${p['mrn']}');
-                                  },
-                                  cells: [
-                                    DataCell(Checkbox(
-                                      value: false,
-                                      onChanged: (val) {},
-                                      checkColor: Colors.white,
-                                      activeColor: Colors.blue,
-                                    )),
-                                    DataCell(Row(children: [
-                                      CircleAvatar(
-                                          backgroundColor: Colors.blue,
-                                          child: Text(initials, style: const TextStyle(color: Colors.white, fontSize: 12))),
-                                      const SizedBox(width: 8),
-                                      Text(p['name'], style: const TextStyle(color: Colors.white)),
-                                    ])),
-                                    DataCell(Text('${p['age']}', style: const TextStyle(color: Colors.white))),
-                                    DataCell(Text(p['mrn'], style: const TextStyle(color: Colors.white))),
-                                    DataCell(Text(
-                                      bodyPartStr,
-                                      style: const TextStyle(color: Colors.white),
-                                    )),
-                                    DataCell(Text(
-                                      physicianStr,
-                                      style: const TextStyle(color: Colors.white),
-                                    )),
-                                    DataCell(Text(p['ai_ready'].toString(), style: const TextStyle(color: Colors.white))),
-                                    DataCell(
-                                        IconButton(icon: const Icon(Icons.more_horiz, color: Colors.white), onPressed: () {})),
-                                  ]);
-                            }).toList(),
-                          ),
-                        ),
+                  child: PatientTable(data: _pageSlice),
                 ),
                 // 4. 페이지네이션
                 Pagination(
@@ -382,6 +317,87 @@ class _PatientsScreenState extends State<PatientsScreen> {
             ),
           )
         ],
+      ),
+    );
+  }
+}
+
+// 환자 목록 테이블
+class PatientTable extends StatelessWidget {
+  final List<Map<String, dynamic>> data;
+  const PatientTable({super.key, required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    if (data.isEmpty) {
+      return const Center(
+        child: Text('No assigned patients.', style: TextStyle(color: Colors.white)),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: DataTable(
+        showCheckboxColumn: false,
+        dataRowColor: WidgetStateProperty.all(Colors.transparent),
+        headingRowColor: WidgetStateProperty.all(Colors.transparent),
+        headingTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        columns: const [
+          DataColumn(label: Text(' ')), // 체크박스용
+          DataColumn(label: Row(children: [Text('Name'), Icon(Icons.arrow_downward, size: 16)])),
+          DataColumn(label: Row(children: [Text('Age'), Icon(Icons.arrow_downward, size: 16)])),
+          DataColumn(label: Row(children: [Text('MRN'), Icon(Icons.arrow_downward, size: 16)])),
+          DataColumn(label: Row(children: [Text('Body Part'), Icon(Icons.arrow_downward, size: 16)])),
+          DataColumn(label: Row(children: [Text('Physician'), Icon(Icons.arrow_downward, size: 16)])),
+          DataColumn(label: Text('AI Ready')),
+          DataColumn(label: Text(' ')), // 점 3개 메뉴용
+        ],
+        rows: data.map((p) {
+          final initials = p['name'].toString().trim().split(RegExp(r'\s+')).take(2).map((s) => s[0].toUpperCase()).join();
+          final bodyPartRaw = p['body_part'];
+          final physicianRaw = p['doctor_name'];
+          final bodyPartStr = (bodyPartRaw is List) ? bodyPartRaw.join('\n') : (bodyPartRaw is String ? bodyPartRaw : '-');
+          final physicianStr = (physicianRaw is List) ? physicianRaw.join('\n') : (physicianRaw is String ? physicianRaw : '-');
+
+          return DataRow(
+              onSelectChanged: (_) {
+                Navigator.pushNamed(context, '/profile/patient/${p['mrn']}');
+              },
+              cells: [
+                DataCell(Checkbox(
+                  value: false,
+                  onChanged: (val) {},
+                  checkColor: Colors.white,
+                  activeColor: Colors.blue,
+                )),
+                DataCell(Row(children: [
+                  CircleAvatar(
+                      backgroundColor: Colors.blue,
+                      child: Text(initials, style: const TextStyle(color: Colors.white, fontSize: 12))),
+                  const SizedBox(width: 8),
+                  Text(p['name'], style: const TextStyle(color: Colors.white)),
+                ])),
+                DataCell(Text('${p['age']}', style: const TextStyle(color: Colors.white))),
+                DataCell(Text(p['mrn'], style: const TextStyle(color: Colors.white))),
+                DataCell(Text(
+                  bodyPartStr,
+                  style: const TextStyle(color: Colors.white),
+                )),
+                DataCell(Text(
+                  physicianStr,
+                  style: const TextStyle(color: Colors.white),
+                )),
+                DataCell(
+                  Center(
+                    child: Icon(
+                      p['ai_ready'] == true ? Icons.check_circle : Icons.radio_button_unchecked,
+                      color: p['ai_ready'] == true ? Colors.green : Colors.grey,
+                    ),
+                  ),
+                ),
+                DataCell(IconButton(icon: const Icon(Icons.more_horiz, color: Colors.white), onPressed: () {})),
+              ]);
+        }).toList(),
       ),
     );
   }
