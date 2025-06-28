@@ -36,8 +36,8 @@ class _CreateNewPatientScreenState extends State<CreateNewMedicationScreen> {
     final picked = await showDatePicker(
       context: context,
       initialDate: _date ?? now,
-      firstDate: DateTime(1900),
-      lastDate: now,
+      firstDate: DateTime(now.year - 5), 
+      lastDate: DateTime(now.year + 5),
     );
     if (picked != null) {
       setState(() {
