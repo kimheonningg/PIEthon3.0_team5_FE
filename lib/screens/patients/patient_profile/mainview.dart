@@ -153,12 +153,12 @@ class _MainviewState extends State<Mainview> with TickerProviderStateMixin {
                       body: TabBarView(
                         controller: _tabController,
                         physics: const NeverScrollableScrollPhysics(),
-                        children: const [
-                          MainviewOverview(),
-                          MainviewMedicalHistory(),
-                          MainviewImaging(),
-                          MainviewTreatmentPlans(),
-                          MainviewClinicalNotes(),
+                        children:  [
+                          MainviewOverview(patientMrn: patient['mrn']),
+                          const MainviewMedicalHistory(),
+                          const MainviewImaging(),
+                          const MainviewTreatmentPlans(),
+                          const MainviewClinicalNotes(),
                         ],
                       ),
                     ),
