@@ -398,40 +398,44 @@ class PatientTable extends StatelessWidget {
               ? physicianRaw.join('\n')
               : (physicianRaw is String ? physicianRaw : '-');
 
-          return DataRow(cells: [
-            DataCell(Checkbox(
-              value: false,
-              onChanged: (val) {},
-              checkColor: Colors.white,
-              activeColor: Colors.blue,
-            )),
-            DataCell(Row(children: [
-              CircleAvatar(
-                  backgroundColor: Colors.blue,
-                  child: Text(initials,
-                      style:
-                          const TextStyle(color: Colors.white, fontSize: 12))),
-              const SizedBox(width: 8),
-              Text(p['name'], style: const TextStyle(color: Colors.white)),
-            ])),
-            DataCell(Text('${p['age']}',
-                style: const TextStyle(color: Colors.white))),
-            DataCell(
-                Text(p['mrn'], style: const TextStyle(color: Colors.white))),
-            DataCell(Text(
-              bodyPartStr,
-              style: const TextStyle(color: Colors.white),
-            )),
-            DataCell(Text(
-              physicianStr,
-              style: const TextStyle(color: Colors.white),
-            )),
-            DataCell(Text(p['ai_ready'].toString(),
-                style: const TextStyle(color: Colors.white))),
-            DataCell(IconButton(
-                icon: const Icon(Icons.more_horiz, color: Colors.white),
-                onPressed: () {})),
-          ]);
+          return DataRow(
+            onSelectChanged: (_) {
+              Navigator.pushNamed(context, '/profile/patient/${p['mrn']}');
+            },
+            cells: [
+              DataCell(Checkbox(
+                value: false,
+                onChanged: (val) {},
+                checkColor: Colors.white,
+                activeColor: Colors.blue,
+              )),
+              DataCell(Row(children: [
+                CircleAvatar(
+                    backgroundColor: Colors.blue,
+                    child: Text(initials,
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 12))),
+                const SizedBox(width: 8),
+                Text(p['name'], style: const TextStyle(color: Colors.white)),
+              ])),
+              DataCell(Text('${p['age']}',
+                  style: const TextStyle(color: Colors.white))),
+              DataCell(
+                  Text(p['mrn'], style: const TextStyle(color: Colors.white))),
+              DataCell(Text(
+                bodyPartStr,
+                style: const TextStyle(color: Colors.white),
+              )),
+              DataCell(Text(
+                physicianStr,
+                style: const TextStyle(color: Colors.white),
+              )),
+              DataCell(Text(p['ai_ready'].toString(),
+                  style: const TextStyle(color: Colors.white))),
+              DataCell(IconButton(
+                  icon: const Icon(Icons.more_horiz, color: Colors.white),
+                  onPressed: () {})),
+            ]);
         }).toList(),
       ),
     );
