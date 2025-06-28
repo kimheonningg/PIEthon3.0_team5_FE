@@ -21,13 +21,13 @@ class Mainview extends StatefulWidget {
 
 class _MainviewState extends State<Mainview> with TickerProviderStateMixin {
   final List<String> _tabs = ['Overview', 'Medical History', 'Imaging', 'Treatment Plans', 'Clinical Notes'];
-  final Map<String, Widget> _tabWidgets = {
-    'Overview': const MainviewOverview(),
-    'Medical History': const MainviewMedicalHistory(),
-    'Imaging': const MainviewImaging(),
-    'Treatment Plans': const MainviewTreatmentPlans(),
-    'Clinical Notes': const MainviewClinicalNotes(),
-  };
+  // final Map<String, Widget> _tabWidgets = {
+  //   'Overview': const MainviewOverview(),
+  //   'Medical History': const MainviewMedicalHistory(),
+  //   'Imaging': const MainviewImaging(),
+  //   'Treatment Plans': const MainviewTreatmentPlans(),
+  //   'Clinical Notes': const MainviewClinicalNotes(),
+  // };
 
   late TabController _tabController;
 
