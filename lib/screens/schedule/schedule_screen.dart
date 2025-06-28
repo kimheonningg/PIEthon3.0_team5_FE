@@ -141,7 +141,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               const SizedBox(width: 16),
 
               ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushNamed(context, '/schedule/create');
+                },
                 icon: const Icon(Icons.add, size: 16),
                 label: const Text('New Appointment'),
                 style: ElevatedButton.styleFrom(
