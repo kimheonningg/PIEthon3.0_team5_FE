@@ -10,6 +10,8 @@ import 'package:piethon_team5_fe/screens/register/register_screen.dart';
 import 'package:piethon_team5_fe/screens/profile/doctor_profile_screen.dart';
 import 'package:piethon_team5_fe/screens/schedule/schedule_screen.dart';
 import 'package:piethon_team5_fe/screens/schedule/create_schedule_screen.dart';
+import 'package:piethon_team5_fe/screens/medication/create_medication_screen.dart';
+import 'package:piethon_team5_fe/screens/procedure/create_procedure_screen.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
 import 'package:provider/provider.dart';
 
@@ -43,6 +45,7 @@ class _MyAppState extends State<MyApp> {
         '/profile/doctor': (context) => const DoctorProfileScreen(), // 의사 프로필 화면
         '/schedule': (context) => const ScheduleScreen(), // schedule 탭 클릭 시의 화면
         '/schedule/create': (context) => const CreateScheduleScreen(),
+        '/medication/create': (context) => const CreateMedicationScreen(),
       },
       onGenerateRoute: (settings) {
         // 환자 개별보기 동적 route
@@ -55,6 +58,17 @@ class _MyAppState extends State<MyApp> {
                 //provider를 사용해야 함
                 create: (context) => MainviewTabProvider(),
                 child: PatientProfileScreen(mrn: mrn)),
+            settings: settings,
+          );
+        }
+
+        if (name.startsWith('/procedure/create/')) {
+          final mrn = name.substring('/procedure/create/'.length);
+          return MaterialPageRoute(
+            builder: (_) => ChangeNotifierProvider(
+                //provider를 사용해야 함
+                create: (context) => MainviewTabProvider(),
+                child: CreateProcedureScreen(patientMrn: mrn)),
             settings: settings,
           );
         }

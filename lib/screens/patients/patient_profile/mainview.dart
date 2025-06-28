@@ -168,7 +168,7 @@ class _MainviewState extends State<Mainview> with TickerProviderStateMixin, Auto
                           MainviewOverview(patientMrn: patient['mrn']),
                           const MainviewMedicalHistory(),
                           const MainviewImaging(),
-                          const MainviewTreatmentPlans(),
+                          MainviewTreatmentPlans(patientMrn: patient['mrn']),
                           const MainviewClinicalNotes(),
                         ],
                       ),

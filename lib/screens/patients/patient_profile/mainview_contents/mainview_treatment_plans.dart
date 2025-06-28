@@ -6,7 +6,9 @@ import 'package:piethon_team5_fe/screens/schedule/create_schedule_screen.dart';
 enum CardType { currentMedications, scheduledProcedures, followUpAppointments, treatmentHistory }
 
 class MainviewTreatmentPlans extends StatefulWidget {
-  const MainviewTreatmentPlans({super.key});
+  final String patientMrn;
+
+  const MainviewTreatmentPlans({super.key, required this.patientMrn});
 
   @override
   State<MainviewTreatmentPlans> createState() => _MainviewTreatmentPlansState();
@@ -15,18 +17,18 @@ class MainviewTreatmentPlans extends StatefulWidget {
 class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: Column(
           children: [
-            DashboardCard(cardType: CardType.currentMedications),
+            DashboardCard(cardType: CardType.currentMedications, patientMrn: widget.patientMrn),
             Gaps.v20,
-            DashboardCard(cardType: CardType.scheduledProcedures),
+            DashboardCard(cardType: CardType.scheduledProcedures, patientMrn: widget.patientMrn),
             Gaps.v20,
-            DashboardCard(cardType: CardType.followUpAppointments),
+            DashboardCard(cardType: CardType.followUpAppointments, patientMrn: widget.patientMrn),
             Gaps.v20,
-            DashboardCard(cardType: CardType.treatmentHistory),
+            DashboardCard(cardType: CardType.treatmentHistory, patientMrn: widget.patientMrn),
           ],
         ),
       ),
@@ -36,10 +38,12 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
 
 class DashboardCard extends StatelessWidget {
   final CardType cardType;
+  final String patientMrn;
 
   const DashboardCard({
     super.key,
     required this.cardType,
+    required this.patientMrn
   });
 
   @override
@@ -82,6 +86,12 @@ class DashboardCard extends StatelessWidget {
                           onPressed: () {
                             if (cardType == CardType.followUpAppointments) {
                               Navigator.pushNamed(context, '/schedule/create');
+                            }
+                            if (cardType == CardType.currentMedications) {
+                              Navigator.pushNamed(context, '/medication/create');
+                            }
+                            if (cardType == CardType.scheduledProcedures) {
+                              Navigator.pushNamed(context, '/procedure/create/${patientMrn}');
                             }
                           },
                           icon: const Icon(
