@@ -8,6 +8,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
 import 'package:piethon_team5_fe/functions/token_manager.dart';
+import 'package:piethon_team5_fe/models/appointment.dart';
 
 class Examination {
   final String examinationTitle;
@@ -56,9 +57,9 @@ class _MainviewOverviewState extends State<MainviewOverview> {
               mainAxisSpacing: 16,
               crossAxisSpacing: 16,
               children: [
-                const StaggeredGridTile.fit(
+                StaggeredGridTile.fit(
                   crossAxisCellCount: 1,
-                  child: TreatmentPlanCard(),
+                  child: TreatmentPlanCard(patientMrn: widget.patientMrn),
                 ),
                 const StaggeredGridTile.fit(
                   crossAxisCellCount: 1,
@@ -141,8 +142,49 @@ class DashboardCard extends StatelessWidget {
 }
 
 //////// Treatment Plan
-class TreatmentPlanCard extends StatelessWidget {
-  const TreatmentPlanCard({super.key});
+class TreatmentPlanCard extends StatefulWidget {
+  final String patientMrn;
+  const TreatmentPlanCard({super.key, required this.patientMrn});
+
+  @override
+  State<TreatmentPlanCard> createState() => _TreatmentPlanCardState();
+}
+
+class _TreatmentPlanCardState extends State<TreatmentPlanCard> {
+  Appointment? _nextAppointment;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchNextAppointment();
+  }
+
+  Future<void> _fetchNextAppointment() async {
+    try {
+      final token = await TokenManager.getAccessToken();
+      final response = await http.get(
+        Uri.parse('$BASE_URL/appointments/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> json = jsonDecode(utf8.decode(response.bodyBytes));
+        final List<dynamic> appointments = json['appointments'] ?? [];
+        if (appointments.isNotEmpty) {
+          final latest = Appointment.fromJson(appointments.first);
+          setState(() => _nextAppointment = latest);
+        }
+      } else {
+        print('[Appointment] Failed: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('[Appointment] Error: $e');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -172,8 +214,16 @@ class TreatmentPlanCard extends StatelessWidget {
           ),
           Gaps.v8,
           _buildSectionTitle('Follow-up'),
-          _buildListItem(Icons.calendar_today_outlined,
-              'Pulmonology Appointment', 'July 10, 2025 at 2:30 PM'),
+          _nextAppointment != null
+              ? _buildListItem(
+                  Icons.calendar_today_outlined,
+                  _nextAppointment!.appointmentDetail,
+                  DateFormat('MMMM d, yyyy \'at\' h:mm a').format(_nextAppointment!.startTime),
+                )
+              : const Text(
+                  'No upcoming appointments.',
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
         ],
       ),
     );
