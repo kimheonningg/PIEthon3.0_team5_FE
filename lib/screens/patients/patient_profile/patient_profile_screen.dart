@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart'; 
 import 'package:piethon_team5_fe/screens/patients/patient_profile/graphview.dart';
 import 'package:piethon_team5_fe/screens/patients/patient_profile/mainview.dart';
 import 'package:piethon_team5_fe/screens/patients/patient_profile/patient_profile_sidebar.dart';
@@ -43,6 +44,16 @@ class _PatientProfileScreen extends State<PatientProfileScreen> {
     });
   }
 
+  List<String> _extractReferences(String text) {
+    final internal = RegExp(r'\b[a-zA-Z]+_[a-zA-Z0-9]+\b');
+    final external = RegExp(r'\[([a-zA-Z0-9]{6,12})\]');
+
+    final internalMatches = internal.allMatches(text).map((m) => m.group(0)!);
+    final externalMatches = external.allMatches(text).map((m) => "[${m.group(1)!}]");
+
+    return [...internalMatches, ...externalMatches].toSet().toList(); // 중복 제거
+  }
+
   Future<void> _sendMessage() async {
     final query = _chatController.text.trim();
     if (query.isEmpty || patientInfo == null) return;
@@ -69,13 +80,16 @@ class _PatientProfileScreen extends State<PatientProfileScreen> {
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
+      final text = json["response"]["text"] ?? "";
+      final references = _extractReferences(text);
+
       setState(() {
         _conversationId = json["conversation_id"];
-        _chatMessages.add({"isUser": false, "text": json["response"]["text"]});
-      });
-    } else {
-      setState(() {
-        _chatMessages.add({"isUser": false, "text": "Error: AI response failed."});
+        _chatMessages.add({
+          "isUser": false,
+          "text": text,
+          "references": references,
+        });
       });
     }
   }
@@ -253,7 +267,11 @@ class _PatientProfileScreen extends State<PatientProfileScreen> {
                                           padding: const EdgeInsets.symmetric(horizontal: 16),
                                           child: Column(
                                             children: _chatMessages.map((msg) {
-                                              return _buildChatMessage(isUser: msg["isUser"], text: msg["text"]);
+                                              return _buildChatMessage(
+                                                isUser: msg["isUser"],
+                                                text: msg["text"],
+                                                references: msg["references"]?.cast<String>(),
+                                              );
                                             }).toList(),
                                           ),
                                         ),
@@ -294,7 +312,12 @@ class _PatientProfileScreen extends State<PatientProfileScreen> {
     );
   }
 
-  Widget _buildChatMessage({required String text, required bool isUser}) {
+  Widget _buildChatMessage({
+    required String text, 
+    required bool isUser,
+    List<String>? references,
+  }) {
+
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -304,12 +327,38 @@ class _PatientProfileScreen extends State<PatientProfileScreen> {
           color: isUser ? MainColors.button2 : MainColors.sidebarItemSelectedText,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Text(
-          text,
-          style: const TextStyle(color: Colors.white),
-          // overflow: _isAIAssistantShowing ? null : TextOverflow.ellipsis,
-        ),
+        child: Column(
+          crossAxisAlignment:
+              isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: [
+            Text(text, style: const TextStyle(color: Colors.white)),
+            if (!isUser && references != null && references.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: references.map((ref) {
+                  return Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      ref,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                    ),
+                  );
+                }).toList(),
+            )
+          ]
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
