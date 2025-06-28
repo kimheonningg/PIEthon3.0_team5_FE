@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:piethon_team5_fe/provider/mainview_tab_provider.dart';
 import 'package:piethon_team5_fe/screens/patients/patient_profile/mainview_contents/mainview_clinical_notes.dart';
@@ -41,6 +42,10 @@ class _MainviewState extends State<Mainview> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final patient = widget.patientInfo;
+
+    final rawDob = patient['birthdate'];
+    final dobDate = DateTime.tryParse(rawDob ?? '') ?? DateTime(1900);
+    final dobFormatted = DateFormat('yyyy-MM-dd').format(dobDate);
 
     return Scaffold(
       body: SizedBox(
@@ -96,7 +101,8 @@ class _MainviewState extends State<Mainview> with TickerProviderStateMixin {
                           children: [
                             const Icon(Icons.calendar_today_outlined, size: 14, color: MainColors.sidebarNameText),
                             Gaps.h4,
-                            Text('${patient['age']} years (DOB: ${patient['birthdate']})', style: const TextStyle(color: MainColors.sidebarNameText, fontSize: 14)),
+                            Text('${patient['age']} years (DOB: ${dobFormatted})',
+                            style: const TextStyle(color: MainColors.sidebarNameText, fontSize: 14)),
                           ],
                         ),
                       ),
