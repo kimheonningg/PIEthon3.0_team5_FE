@@ -5,7 +5,7 @@ import 'package:piethon_team5_fe/const.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:piethon_team5_fe/models/medication_model.dart';
+import 'package:piethon_team5_fe/models/medical_history_models.dart';
 import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
 import 'package:piethon_team5_fe/functions/token_manager.dart';

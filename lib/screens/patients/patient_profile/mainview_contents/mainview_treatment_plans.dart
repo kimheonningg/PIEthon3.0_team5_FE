@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:piethon_team5_fe/const.dart';
 import 'package:piethon_team5_fe/functions/token_manager.dart';
-import 'package:piethon_team5_fe/models/medication_model.dart';
+import 'package:piethon_team5_fe/models/medical_history_models.dart';
 import 'package:piethon_team5_fe/screens/patients/patient_profile/mainview_contents/create_new_medication_screen.dart';
 import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
@@ -23,6 +23,7 @@ class MainviewTreatmentPlans extends StatefulWidget {
 
 class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
   List<MedicationModel> _medicationHistories = [];
+  List<ProcedureModel> _procedureHistories = [];
 
   // Medication 정보 가져오기
   Future<void> _fetchMedications() async {
@@ -52,10 +53,39 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
     }
   }
 
+  // Procedure 정보 가져오기
+  Future<void> _fetchProcedures() async {
+    try {
+      final token = await TokenManager.getAccessToken();
+      final response = await http.get(
+        Uri.parse('$BASE_URL/medicalhistories/procedures/${widget.patientMrn}'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> body = jsonDecode(utf8.decode(response.bodyBytes));
+        if (body['success'] == true) {
+          final List<dynamic> histories = body['medical_histories'];
+          setState(() {
+            _procedureHistories = histories.map((e) => ProcedureModel.fromJson(e)).toList();
+          });
+        }
+      } else {
+        print('[Procedures] Failed: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('[Procedures] Error: $e');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     _fetchMedications();
+    _fetchProcedures();
   }
 
   @override
@@ -76,7 +106,9 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
             DashboardCard(
               cardType: CardType.scheduledProcedures,
               patientMrn: widget.patientMrn,
-              contents: const [],
+              contents: _procedureHistories.map((procedure) {
+                return [procedure.title, procedure.content];
+              }).toList(),
             ),
             Gaps.v20,
             DashboardCard(
