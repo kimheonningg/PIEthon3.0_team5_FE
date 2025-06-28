@@ -72,11 +72,7 @@ class _CreateNewPatientScreenState extends State<CreateNewPatientScreen> {
       return;
     }
 
-    final bodyParts = _bodyPartController.text
-        .split(',')
-        .map((s) => s.trim())
-        .where((s) => s.isNotEmpty)
-        .toList();
+    final bodyParts = _bodyPartController.text.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
 
     final token = await TokenManager.getAccessToken();
     if (token == null) {
@@ -146,9 +142,9 @@ class _CreateNewPatientScreenState extends State<CreateNewPatientScreen> {
                   alignment: Alignment.centerLeft,
                   child: GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: Row(
+                    child: const Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
+                      children: [
                         Icon(Icons.arrow_back_ios, color: Colors.white, size: 18),
                         SizedBox(width: 8),
                         Text('Go back', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
@@ -228,7 +224,7 @@ class _CreateNewPatientScreenState extends State<CreateNewPatientScreen> {
                 Row(
                   children: [
                     Expanded(
-                      flex: 1, 
+                      flex: 1,
                       child: TextField(
                         controller: _ageController,
                         style: const TextStyle(color: Colors.white, fontSize: 16),
@@ -247,7 +243,7 @@ class _CreateNewPatientScreenState extends State<CreateNewPatientScreen> {
                     ),
                     const SizedBox(width: 16),
                     Expanded(
-                      flex: 2, 
+                      flex: 2,
                       child: TextField(
                         controller: _birthdateController,
                         readOnly: true,

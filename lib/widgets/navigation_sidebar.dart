@@ -1,5 +1,5 @@
 // Navigation Sidebar 위젯
-import 'dart:convert' as convert; 
+import 'dart:convert' as convert;
 import 'package:flutter/material.dart';
 import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
@@ -28,7 +28,7 @@ class _SideNavigationBarState extends State<SideNavigationBar> {
     _loadProfile();
   }
 
-   @override
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final path = ModalRoute.of(context)?.settings.name;
@@ -55,8 +55,8 @@ class _SideNavigationBarState extends State<SideNavigationBar> {
       final info = await UserInfoManager.load();
       if (info != null) {
         final first = info['first_name'] ?? '';
-        final last  = info['last_name']  ?? '';
-        final role  = info['position']  ?? '';
+        final last = info['last_name'] ?? '';
+        final role = info['position'] ?? '';
 
         setState(() {
           _displayName = [last, first].where((s) => s.isNotEmpty).join(' ');
@@ -74,11 +74,11 @@ class _SideNavigationBarState extends State<SideNavigationBar> {
       final payload = convert.utf8.decode(
         convert.base64Url.decode(_padBase64(parts[1])),
       );
-      final data   = convert.jsonDecode(payload) as Map<String, dynamic>;
+      final data = convert.jsonDecode(payload) as Map<String, dynamic>;
 
       final first = data['first_name'] ?? '';
-      final last  = data['last_name']  ?? '';
-      final role  = data['position']  ??'';
+      final last = data['last_name'] ?? '';
+      final role = data['position'] ?? '';
 
       setState(() {
         _displayName = [last, first].where((s) => s.isNotEmpty).join(' ');
@@ -196,18 +196,17 @@ class _SideNavigationBarState extends State<SideNavigationBar> {
               },
               child: Row(
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 24,
                     backgroundColor: MainColors.userProfile,
-                    child: const Icon(Icons.person,
-                        color: Colors.white, size: 24),
+                    child: Icon(Icons.person, color: Colors.white, size: 24),
                   ),
                   const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Dr ${_displayName}',
+                        'Dr $_displayName',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -283,18 +282,14 @@ class _NavItemState extends State<NavItem> {
             children: [
               Icon(
                 widget.icon,
-                color: widget.isSelected
-                    ? MainColors.sidebarItemSelectedText
-                    : MainColors.sidebarItemText,
+                color: widget.isSelected ? MainColors.sidebarItemSelectedText : MainColors.sidebarItemText,
                 size: 16,
               ),
               Gaps.h12,
               Text(
                 widget.title,
                 style: TextStyle(
-                  color: widget.isSelected
-                      ? MainColors.sidebarItemSelectedText
-                      : MainColors.sidebarItemText,
+                  color: widget.isSelected ? MainColors.sidebarItemSelectedText : MainColors.sidebarItemText,
                   fontWeight: FontWeight.w400,
                   fontSize: 14,
                 ),
