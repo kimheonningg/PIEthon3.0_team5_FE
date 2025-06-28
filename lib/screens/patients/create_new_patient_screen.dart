@@ -100,7 +100,7 @@ class _CreateNewPatientScreenState extends State<CreateNewPatientScreen> {
         "last_name": _lastNameController.text,
       },
       "age": age,
-      "dob": _birthdate!.toIso8601String(),
+      "birthdate": _birthdate!.toIso8601String(),
       "gender": _selectedGender,
       "body_part": bodyParts,
       "ai_ready": _isMyPatient,

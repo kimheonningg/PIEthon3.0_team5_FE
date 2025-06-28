@@ -207,7 +207,7 @@ class _SideNavigationBarState extends State<SideNavigationBar> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _displayName,
+                        'Dr ${_displayName}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,

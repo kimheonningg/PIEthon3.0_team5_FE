@@ -157,7 +157,7 @@ class _PatientProfileSidebar extends State<PatientProfileSidebar> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _displayName,
+                        'Dr ${_displayName}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
