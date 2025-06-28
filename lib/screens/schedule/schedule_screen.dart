@@ -33,7 +33,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     final token = await TokenManager.getAccessToken();
     if (token == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar( content: Text('Login required. Please sign in again.')),
+        const SnackBar(content: Text('Login required. Please sign in again.')),
       );
       return;
     }
@@ -42,10 +42,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
     };
-    final response = await http.get(
-      Uri.parse('$BASE_URL/appointments'),
-      headers: headers
-    );
+    final response = await http.get(Uri.parse('$BASE_URL/appointments'), headers: headers);
     if (response.statusCode == 200) {
       final jsonBody = jsonDecode(response.body);
       final items = jsonBody['appointments'] as List;
@@ -99,7 +96,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-
           Row(
             children: [
               Container(
@@ -111,14 +107,14 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: const Color(0xFF374151)),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
-                    const Icon(Icons.search, color: Colors.white30, size: 20),
-                    const SizedBox(width: 8),
+                    Icon(Icons.search, color: Colors.white30, size: 20),
+                    SizedBox(width: 8),
                     Expanded(
                       child: TextField(
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
+                        style: TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
                           hintText: 'Search appointments...',
                           hintStyle: TextStyle(color: Colors.white30),
                           border: InputBorder.none,
@@ -129,21 +125,18 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   ],
                 ),
               ),
-
               const SizedBox(width: 16),
-
               const Icon(Icons.circle, color: Color(0xFF22C55E), size: 10),
               const SizedBox(width: 6),
               const Text(
                 'AI System: Online',
                 style: TextStyle(color: Colors.white70, fontSize: 14),
               ),
-
               const SizedBox(width: 16),
-
               ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/schedule/create');
+                onPressed: () async {
+                  await Navigator.pushNamed(context, '/schedule/create');
+                  await _fetchAppointments();
                 },
                 icon: const Icon(Icons.add, size: 16),
                 label: const Text('New Appointment'),
@@ -177,7 +170,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               const SizedBox(width: 8),
               _buildViewToggle(ViewType.month, 'Month'),
               const SizedBox(width: 16),
-
               IconButton(
                 onPressed: () {
                   setState(() {
@@ -215,7 +207,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               ),
             ],
           ),
-
           Row(
             children: [
               DropdownButton<String>(
@@ -253,7 +244,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       ),
     );
   }
-
 
   Widget _buildViewToggle(ViewType view, String label) {
     final selected = _currentView == view;

@@ -111,7 +111,47 @@ class DashboardCard extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 color: MainColors.sidebarBackground,
-                child: const Text('콘-텐-츠')),
+                child: const Column(
+                  children: [
+                    ///////// 예시 데이터 ////////
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.medication_outlined,
+                          size: 20,
+                          color: MainColors.selectedTab,
+                        ),
+                        Gaps.h6,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Awesome Title~',
+                              style: TextStyle(
+                                color: MainColors.sidebarItemText,
+                                fontSize: 16,
+                                fontFamily: 'Roboto',
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Gaps.v6,
+                            Text(
+                              'Good Contents\nGood Contents\nAwesome Contents~~~~',
+                              style: TextStyle(
+                                color: MainColors.sidebarNameText,
+                                fontSize: 14,
+                                fontFamily: 'Roboto',
+                                fontWeight: FontWeight.w400,
+                              ),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                    ////////예시 데이터////////
+                  ],
+                )),
           ],
         ),
       ),
