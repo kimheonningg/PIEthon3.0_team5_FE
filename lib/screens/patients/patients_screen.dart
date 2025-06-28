@@ -353,6 +353,7 @@ class PatientTable extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(24),
       child: DataTable(
+        showCheckboxColumn: false, 
         dataRowColor: WidgetStateProperty.all(Colors.transparent),
         headingRowColor: WidgetStateProperty.all(Colors.transparent),
         headingTextStyle:
@@ -436,8 +437,14 @@ class PatientTable extends StatelessWidget {
                 physicianStr,
                 style: const TextStyle(color: Colors.white),
               )),
-              DataCell(Text(p['ai_ready'].toString(),
-                  style: const TextStyle(color: Colors.white))),
+              DataCell(
+                Center(
+                  child: Icon(
+                    p['ai_ready'] == true ? Icons.check_circle : Icons.radio_button_unchecked,
+                    color: p['ai_ready'] == true ? Colors.green : Colors.grey,
+                  ),
+                ),
+              ),
               DataCell(IconButton(
                   icon: const Icon(Icons.more_horiz, color: Colors.white),
                   onPressed: () {})),
