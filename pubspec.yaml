@@ -45,6 +45,7 @@ dependencies:
   material_symbols_icons: ^4.2815.1
   flutter_inappwebview: ^6.1.5
   photo_view: ^0.15.0
+  advanced_graphview: ^1.0.4
   
 
 dev_dependencies:
