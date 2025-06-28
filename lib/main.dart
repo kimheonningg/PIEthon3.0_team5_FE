@@ -37,11 +37,29 @@ class _MyAppState extends State<MyApp> {
         '/login/findID': (context) => const FindIdScreen(), //ID 찾기 화면
         '/login/changePW': (context) => const ChangePwScreen(), //비밀번호 재설정 화면
         '/patients': (context) => const PatientsScreen(), // 환자 보기 탭
-        '/profile/patient': (context) => const PatientProfileScreen(), // 환자 개별 보기
         '/patients/create': (context) => const CreateNewPatientScreen(), // 환자 생성 화면
         '/profile/doctor': (context) => const DoctorProfileScreen(), // 의사 프로필 화면
         '/schedule': (context) => const ScheduleScreen(), // schedule 탭 클릭 시의 화면
         '/schedule/create': (context) => const CreateScheduleScreen(),
+      },
+      onGenerateRoute: (settings) {
+        // 환자 개별보기 동적 route
+        final name = settings.name ?? '';
+
+        if (name.startsWith('/profile/patient/')) {
+          final mrn = name.substring('/profile/patient/'.length);
+          return MaterialPageRoute(
+            builder: (_) => PatientProfileScreen(mrn: mrn),
+            settings: settings,
+          );
+        }
+
+        // 없는 경로
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            body: Center(child: Text('Page not found')),
+          ),
+        );
       },
       theme: ThemeData(
         brightness: Brightness.dark,

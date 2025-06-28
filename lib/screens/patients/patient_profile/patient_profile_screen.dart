@@ -10,7 +10,11 @@ import 'package:provider/provider.dart';
 import '../../../widgets/gaps.dart';
 
 class PatientProfileScreen extends StatefulWidget {
-  const PatientProfileScreen({super.key});
+  final String mrn;    
+
+  const PatientProfileScreen({
+    super.key, required this.mrn
+  });
 
   @override
   State<PatientProfileScreen> createState() => _PatientProfileScreen();
