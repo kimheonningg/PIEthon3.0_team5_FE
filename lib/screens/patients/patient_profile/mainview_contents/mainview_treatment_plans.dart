@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:piethon_team5_fe/const.dart';
 import 'package:piethon_team5_fe/functions/token_manager.dart';
-import 'package:piethon_team5_fe/models/medical_history_model.dart';
+import 'package:piethon_team5_fe/models/medication_model.dart';
 import 'package:piethon_team5_fe/screens/patients/patient_profile/mainview_contents/create_new_medication_screen.dart';
 import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
@@ -22,14 +22,14 @@ class MainviewTreatmentPlans extends StatefulWidget {
 }
 
 class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
-  final List<List<String>> _medications = []; //[0]이 title, [1]이 body
+  List<MedicationModel> _medicationHistories = [];
 
   // Medication 정보 가져오기
   Future<void> _fetchMedications() async {
     try {
       final token = await TokenManager.getAccessToken();
       final response = await http.get(
-        Uri.parse('$BASE_URL/medicalhistories/medications/123'), //여기 고치기!!!!
+        Uri.parse('$BASE_URL/medicalhistories/medications/${widget.patientMrn}'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -37,19 +37,18 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> json = jsonDecode(utf8.decode(response.bodyBytes));
-        final List<dynamic> medications = json['medical_histories'] ?? [];
-        if (medications.isNotEmpty) {
-          medications.map((value) {
-            MedicalHistoryModel medicalHistory = MedicalHistoryModel.fromJson(value);
-            _medications.add([medicalHistory.title, 'Date : ${medicalHistory.date}\n${medicalHistory.content}']);
+        final Map<String, dynamic> body = jsonDecode(utf8.decode(response.bodyBytes));
+        if (body['success'] == true) {
+          final List<dynamic> histories = body['medical_histories'];
+          setState(() {
+            _medicationHistories = histories.map((e) => MedicationModel.fromJson(e)).toList();
           });
         }
       } else {
-        print('[Medication] Failed: ${response.statusCode}');
+        print('[Medications] Failed: ${response.statusCode}');
       }
     } catch (e) {
-      print('[Medication] Error: $e');
+      print('[Medications] Error: $e');
     }
   }
 
@@ -66,13 +65,31 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            DashboardCard(cardType: CardType.currentMedications, patientMrn: widget.patientMrn),
+            DashboardCard(
+              cardType: CardType.currentMedications,
+              patientMrn: widget.patientMrn,
+              contents: _medicationHistories.map((medication) {
+                return [medication.title, medication.content];
+              }).toList(),
+            ),
             Gaps.v20,
-            DashboardCard(cardType: CardType.scheduledProcedures, patientMrn: widget.patientMrn),
+            DashboardCard(
+              cardType: CardType.scheduledProcedures,
+              patientMrn: widget.patientMrn,
+              contents: const [],
+            ),
             Gaps.v20,
-            DashboardCard(cardType: CardType.followUpAppointments, patientMrn: widget.patientMrn),
+            DashboardCard(
+              cardType: CardType.followUpAppointments,
+              patientMrn: widget.patientMrn,
+              contents: const [],
+            ),
             Gaps.v20,
-            DashboardCard(cardType: CardType.treatmentHistory, patientMrn: widget.patientMrn),
+            DashboardCard(
+              cardType: CardType.treatmentHistory,
+              patientMrn: widget.patientMrn,
+              contents: const [],
+            ),
           ],
         ),
       ),
@@ -83,8 +100,9 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
 class DashboardCard extends StatelessWidget {
   final CardType cardType;
   final String patientMrn;
+  final List<List<String>> contents;
 
-  const DashboardCard({super.key, required this.cardType, required this.patientMrn});
+  const DashboardCard({super.key, required this.cardType, required this.patientMrn, required this.contents});
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +145,6 @@ class DashboardCard extends StatelessWidget {
                             if (cardType == CardType.currentMedications) {
                               await Navigator.push(
                                   context, MaterialPageRoute(builder: (context) => const CreateNewMedicationScreen()));
-                              await fetchFunction();
                             }
                             if (cardType == CardType.followUpAppointments) {
                               Navigator.pushNamed(context, '/schedule/create');
