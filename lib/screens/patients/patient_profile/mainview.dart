@@ -13,9 +13,7 @@ import 'package:provider/provider.dart';
 class Mainview extends StatefulWidget {
   final Map<String, dynamic> patientInfo;
 
-  const Mainview({
-    super.key, required this.patientInfo
-  });
+  const Mainview({super.key, required this.patientInfo});
 
   @override
   State<Mainview> createState() => _MainviewState();
@@ -101,8 +99,8 @@ class _MainviewState extends State<Mainview> with TickerProviderStateMixin {
                           children: [
                             const Icon(Icons.calendar_today_outlined, size: 14, color: MainColors.sidebarNameText),
                             Gaps.h4,
-                            Text('${patient['age']} years (DOB: ${dobFormatted})',
-                            style: const TextStyle(color: MainColors.sidebarNameText, fontSize: 14)),
+                            Text('${patient['age']} years (DOB: $dobFormatted)',
+                                style: const TextStyle(color: MainColors.sidebarNameText, fontSize: 14)),
                           ],
                         ),
                       ),
@@ -110,7 +108,8 @@ class _MainviewState extends State<Mainview> with TickerProviderStateMixin {
                         padding: const EdgeInsets.only(right: 16.0),
                         child: Row(
                           children: [
-                            Icon(patient['gender'] == 'Female' ? Icons.female : Icons.male, size: 14, color: MainColors.sidebarNameText),
+                            Icon(patient['gender'] == 'Female' ? Icons.female : Icons.male,
+                                size: 14, color: MainColors.sidebarNameText),
                             Gaps.h4,
                             Text(patient['gender'], style: const TextStyle(color: MainColors.sidebarNameText, fontSize: 14)),
                           ],
@@ -122,7 +121,8 @@ class _MainviewState extends State<Mainview> with TickerProviderStateMixin {
                           children: [
                             const Icon(Icons.assignment_outlined, size: 14, color: MainColors.sidebarNameText),
                             Gaps.h4,
-                            Text('MRN: ${patient['mrn']}', style: const TextStyle(color: MainColors.sidebarNameText, fontSize: 14)),
+                            Text('MRN: ${patient['mrn']}',
+                                style: const TextStyle(color: MainColors.sidebarNameText, fontSize: 14)),
                           ],
                         ),
                       ),
@@ -132,34 +132,38 @@ class _MainviewState extends State<Mainview> with TickerProviderStateMixin {
               ),
               Gaps.v24,
               Expanded(
-                child: DefaultTabController(
-                  length: _tabs.length,
-                  child: Scaffold(
-                    appBar: AppBar(
-                      toolbarHeight: 0,
-                      backgroundColor: MainColors.background,
-                      bottom: TabBar(
+                child: Consumer<MainviewTabProvider>(builder: (context, provider, child) {
+                  _tabController.index = _tabs.indexOf(provider.currentTabName);
+
+                  return DefaultTabController(
+                    length: _tabs.length,
+                    child: Scaffold(
+                      appBar: AppBar(
+                        toolbarHeight: 0,
+                        backgroundColor: MainColors.background,
+                        bottom: TabBar(
+                          controller: _tabController,
+                          isScrollable: true,
+                          labelColor: MainColors.selectedTab,
+                          unselectedLabelColor: MainColors.sidebarNameText,
+                          indicatorColor: MainColors.selectedTab,
+                          tabs: _tabs.map((String name) => Tab(text: name)).toList(),
+                        ),
+                      ),
+                      body: TabBarView(
                         controller: _tabController,
-                        isScrollable: true,
-                        labelColor: MainColors.selectedTab,
-                        unselectedLabelColor: MainColors.sidebarNameText,
-                        indicatorColor: MainColors.selectedTab,
-                        tabs: _tabs.map((String name) => Tab(text: name)).toList(),
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: const [
+                          MainviewOverview(),
+                          MainviewMedicalHistory(),
+                          MainviewImaging(),
+                          MainviewTreatmentPlans(),
+                          MainviewClinicalNotes(),
+                        ],
                       ),
                     ),
-                    body: TabBarView(
-                      controller: _tabController,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: const [
-                        MainviewOverview(),
-                        MainviewMedicalHistory(),
-                        MainviewImaging(),
-                        MainviewTreatmentPlans(),
-                        MainviewClinicalNotes(),
-                      ],
-                    ),
-                  ),
-                ),
+                  );
+                }),
               ),
               const Divider(color: MainColors.dividerLine, height: 1),
             ],
