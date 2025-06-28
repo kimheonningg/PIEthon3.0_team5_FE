@@ -136,82 +136,88 @@ class _PatientsScreenState extends State<PatientsScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          // Search Patients
-                          SizedBox(
-                            width: 256,
-                            child: TextField(
-                              controller: _searchController,
-                              onChanged: (value) {
-                                setState(() {
-                                  _searchQuery = value;
-                                  _currentPage = 1; // 검색 시 첫 페이지로 이동
-                                });
-                              },
-                              decoration: InputDecoration(
-                                hintText: 'Search patients...',
-                                hintStyle: const TextStyle(color: MainColors.hinttext),
-                                prefixIcon: const Icon(Icons.search, color: MainColors.hinttext),
-                                filled: true,
-                                fillColor: MainColors.textfield,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: BorderSide.none,
-                                ),
-                                contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          // AI System 상태
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: const BoxDecoration(
-                                    color: MainColors.aiEnabled,
-                                    shape: BoxShape.circle,
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          reverse: true,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              // Search Patients
+                              SizedBox(
+                                width: 256,
+                                child: TextField(
+                                  controller: _searchController,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _searchQuery = value;
+                                      _currentPage = 1; // 검색 시 첫 페이지로 이동
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'Search patients...',
+                                    hintStyle: const TextStyle(color: MainColors.hinttext),
+                                    prefixIcon: const Icon(Icons.search, color: MainColors.hinttext),
+                                    filled: true,
+                                    fillColor: MainColors.textfield,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                const Text('AI System: Online', style: TextStyle(color: Color(0xFF4B5563))),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          // + New Patient 버튼
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const CreateNewPatientScreen()),
-                              );
-
-                              setState(() {
-                                _loadPatients();
-                              });
-                            },
-                            icon: const Icon(
-                              Icons.add,
-                              size: 18,
-                              color: Colors.white,
-                            ),
-                            label: const Text('New Patient'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: MainColors.sidebarItemSelectedText,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
                               ),
-                            ),
+                              const SizedBox(width: 16),
+                              // AI System 상태
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 8,
+                                      height: 8,
+                                      decoration: const BoxDecoration(
+                                        color: MainColors.aiEnabled,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const Text('AI System: Online', style: TextStyle(color: Color(0xFF4B5563))),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              // + New Patient 버튼
+                              ElevatedButton.icon(
+                                onPressed: () async {
+                                  await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const CreateNewPatientScreen()),
+                                  );
+
+                                  setState(() {
+                                    _loadPatients();
+                                  });
+                                },
+                                icon: const Icon(
+                                  Icons.add,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                                label: const Text('New Patient'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: MainColors.sidebarItemSelectedText,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ],
                   ),
@@ -228,37 +234,42 @@ class _PatientsScreenState extends State<PatientsScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Text('${_patientsInfo.length} patient${_patientsInfo.length == 1 ? '' : 's'}',
-                              style: TextStyle(color: Colors.grey[400])),
-                          const SizedBox(width: 16),
-                          OutlinedButton.icon(
-                            onPressed: _loadPatients,
-                            icon: const Icon(Icons.filter_list, size: 18),
-                            label: const Text('Filters'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: MainColors.sidebarItemText,
-                              backgroundColor: MainColors.button2,
-                              side: BorderSide.none,
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                            ),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              Text('${_patientsInfo.length} patient${_patientsInfo.length == 1 ? '' : 's'}',
+                                  style: TextStyle(color: Colors.grey[400])),
+                              const SizedBox(width: 16),
+                              OutlinedButton.icon(
+                                onPressed: _loadPatients,
+                                icon: const Icon(Icons.filter_list, size: 18),
+                                label: const Text('Filters'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: MainColors.sidebarItemText,
+                                  backgroundColor: MainColors.button2,
+                                  side: BorderSide.none,
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              OutlinedButton.icon(
+                                onPressed: () {},
+                                icon: const Icon(Icons.sort, size: 18),
+                                label: const Text('Sort'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: MainColors.sidebarItemText,
+                                  backgroundColor: MainColors.button2,
+                                  side: BorderSide.none,
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          OutlinedButton.icon(
-                            onPressed: () {},
-                            icon: const Icon(Icons.sort, size: 18),
-                            label: const Text('Sort'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: MainColors.sidebarItemText,
-                              backgroundColor: MainColors.button2,
-                              side: BorderSide.none,
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                       Row(
                         children: [
@@ -337,67 +348,70 @@ class PatientTable extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.all(24),
-      child: DataTable(
-        showCheckboxColumn: false,
-        dataRowColor: WidgetStateProperty.all(Colors.transparent),
-        headingRowColor: WidgetStateProperty.all(Colors.transparent),
-        headingTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        columns: const [
-          DataColumn(label: Text(' ')), // 체크박스용
-          DataColumn(label: Row(children: [Text('Name'), Icon(Icons.arrow_downward, size: 16)])),
-          DataColumn(label: Row(children: [Text('Age'), Icon(Icons.arrow_downward, size: 16)])),
-          DataColumn(label: Row(children: [Text('MRN'), Icon(Icons.arrow_downward, size: 16)])),
-          DataColumn(label: Row(children: [Text('Body Part'), Icon(Icons.arrow_downward, size: 16)])),
-          DataColumn(label: Row(children: [Text('Physician'), Icon(Icons.arrow_downward, size: 16)])),
-          DataColumn(label: Text('AI Ready')),
-          DataColumn(label: Text(' ')), // 점 3개 메뉴용
-        ],
-        rows: data.map((p) {
-          final initials = p['name'].toString().trim().split(RegExp(r'\s+')).take(2).map((s) => s[0].toUpperCase()).join();
-          final bodyPartRaw = p['body_part'];
-          final physicianRaw = p['doctor_name'];
-          final bodyPartStr = (bodyPartRaw is List) ? bodyPartRaw.join('\n') : (bodyPartRaw is String ? bodyPartRaw : '-');
-          final physicianStr = (physicianRaw is List) ? physicianRaw.join('\n') : (physicianRaw is String ? physicianRaw : '-');
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          showCheckboxColumn: false,
+          dataRowColor: WidgetStateProperty.all(Colors.transparent),
+          headingRowColor: WidgetStateProperty.all(Colors.transparent),
+          headingTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          columns: const [
+            DataColumn(label: Text(' ')), // 체크박스용
+            DataColumn(label: Row(children: [Text('Name'), Icon(Icons.arrow_downward, size: 16)])),
+            DataColumn(label: Row(children: [Text('Age'), Icon(Icons.arrow_downward, size: 16)])),
+            DataColumn(label: Row(children: [Text('MRN'), Icon(Icons.arrow_downward, size: 16)])),
+            DataColumn(label: Row(children: [Text('Body Part'), Icon(Icons.arrow_downward, size: 16)])),
+            DataColumn(label: Row(children: [Text('Physician'), Icon(Icons.arrow_downward, size: 16)])),
+            DataColumn(label: Text('AI Ready')),
+            DataColumn(label: Text(' ')), // 점 3개 메뉴용
+          ],
+          rows: data.map((p) {
+            final initials = p['name'].toString().trim().split(RegExp(r'\s+')).take(2).map((s) => s[0].toUpperCase()).join();
+            final bodyPartRaw = p['body_part'];
+            final physicianRaw = p['doctor_name'];
+            final bodyPartStr = (bodyPartRaw is List) ? bodyPartRaw.join('\n') : (bodyPartRaw is String ? bodyPartRaw : '-');
+            final physicianStr = (physicianRaw is List) ? physicianRaw.join('\n') : (physicianRaw is String ? physicianRaw : '-');
 
-          return DataRow(
-              onSelectChanged: (_) {
-                Navigator.pushNamed(context, '/profile/patient/${p['mrn']}');
-              },
-              cells: [
-                DataCell(Checkbox(
-                  value: false,
-                  onChanged: (val) {},
-                  checkColor: Colors.white,
-                  activeColor: Colors.blue,
-                )),
-                DataCell(Row(children: [
-                  CircleAvatar(
-                      backgroundColor: Colors.blue,
-                      child: Text(initials, style: const TextStyle(color: Colors.white, fontSize: 12))),
-                  const SizedBox(width: 8),
-                  Text(p['name'], style: const TextStyle(color: Colors.white)),
-                ])),
-                DataCell(Text('${p['age']}', style: const TextStyle(color: Colors.white))),
-                DataCell(Text(p['mrn'], style: const TextStyle(color: Colors.white))),
-                DataCell(Text(
-                  bodyPartStr,
-                  style: const TextStyle(color: Colors.white),
-                )),
-                DataCell(Text(
-                  physicianStr,
-                  style: const TextStyle(color: Colors.white),
-                )),
-                DataCell(
-                  Center(
-                    child: Icon(
-                      p['ai_ready'] == true ? Icons.check_circle : Icons.radio_button_unchecked,
-                      color: p['ai_ready'] == true ? Colors.green : Colors.grey,
+            return DataRow(
+                onSelectChanged: (_) {
+                  Navigator.pushNamed(context, '/profile/patient/${p['mrn']}');
+                },
+                cells: [
+                  DataCell(Checkbox(
+                    value: false,
+                    onChanged: (val) {},
+                    checkColor: Colors.white,
+                    activeColor: Colors.blue,
+                  )),
+                  DataCell(Row(children: [
+                    CircleAvatar(
+                        backgroundColor: Colors.blue,
+                        child: Text(initials, style: const TextStyle(color: Colors.white, fontSize: 12))),
+                    const SizedBox(width: 8),
+                    Text(p['name'], style: const TextStyle(color: Colors.white)),
+                  ])),
+                  DataCell(Text('${p['age']}', style: const TextStyle(color: Colors.white))),
+                  DataCell(Text(p['mrn'], style: const TextStyle(color: Colors.white))),
+                  DataCell(Text(
+                    bodyPartStr,
+                    style: const TextStyle(color: Colors.white),
+                  )),
+                  DataCell(Text(
+                    physicianStr,
+                    style: const TextStyle(color: Colors.white),
+                  )),
+                  DataCell(
+                    Center(
+                      child: Icon(
+                        p['ai_ready'] == true ? Icons.check_circle : Icons.radio_button_unchecked,
+                        color: p['ai_ready'] == true ? Colors.green : Colors.grey,
+                      ),
                     ),
                   ),
-                ),
-                DataCell(IconButton(icon: const Icon(Icons.more_horiz, color: Colors.white), onPressed: () {})),
-              ]);
-        }).toList(),
+                  DataCell(IconButton(icon: const Icon(Icons.more_horiz, color: Colors.white), onPressed: () {})),
+                ]);
+          }).toList(),
+        ),
       ),
     );
   }
