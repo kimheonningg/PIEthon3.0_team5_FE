@@ -45,7 +45,6 @@ class _MyAppState extends State<MyApp> {
         '/profile/doctor': (context) => const DoctorProfileScreen(), // 의사 프로필 화면
         '/schedule': (context) => const ScheduleScreen(), // schedule 탭 클릭 시의 화면
         '/schedule/create': (context) => const CreateScheduleScreen(),
-        '/medication/create': (context) => const CreateMedicationScreen(),
       },
       onGenerateRoute: (settings) {
         // 환자 개별보기 동적 route
@@ -69,6 +68,17 @@ class _MyAppState extends State<MyApp> {
                 //provider를 사용해야 함
                 create: (context) => MainviewTabProvider(),
                 child: CreateProcedureScreen(patientMrn: mrn)),
+            settings: settings,
+          );
+        }
+
+        if (name.startsWith('/medication/create/')) {
+          final mrn = name.substring('/medication/create/'.length);
+          return MaterialPageRoute(
+            builder: (_) => ChangeNotifierProvider(
+                //provider를 사용해야 함
+                create: (context) => MainviewTabProvider(),
+                child: CreateMedicationScreen(patientMrn: mrn)),
             settings: settings,
           );
         }

@@ -88,7 +88,7 @@ class DashboardCard extends StatelessWidget {
                               Navigator.pushNamed(context, '/schedule/create');
                             }
                             if (cardType == CardType.currentMedications) {
-                              Navigator.pushNamed(context, '/medication/create');
+                              Navigator.pushNamed(context, '/medication/create/${patientMrn}');
                             }
                             if (cardType == CardType.scheduledProcedures) {
                               Navigator.pushNamed(context, '/procedure/create/${patientMrn}');
