@@ -5,6 +5,7 @@ import 'package:piethon_team5_fe/screens/patients/patient_profile/graphview.dart
 import 'package:piethon_team5_fe/screens/patients/patient_profile/mainview.dart';
 import 'package:piethon_team5_fe/screens/patients/patient_profile/patient_profile_sidebar.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
+import 'package:piethon_team5_fe/functions/patient_info_manager.dart';
 import 'package:provider/provider.dart';
 
 import '../../../widgets/gaps.dart';
@@ -23,6 +24,21 @@ class PatientProfileScreen extends StatefulWidget {
 class _PatientProfileScreen extends State<PatientProfileScreen> {
   bool _isMainview = true; //MainView를 보여주는 중인지, GraphView를 보여주는 중인지
   bool _isAIAssistantShowing = true; //AI Assistant 창 표시 여부
+
+  Map<String, dynamic>? patientInfo;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPatientInfo();
+  }
+
+  Future<void> _loadPatientInfo() async {
+    final info = await PatientInfoManager.loadByMrn(widget.mrn);
+    setState(() {
+      patientInfo = info;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +148,11 @@ class _PatientProfileScreen extends State<PatientProfileScreen> {
                         child: Row(
                           children: [
                             Expanded(
-                              child: _isMainview ? const Mainview() : const GraphView(),
+                              child: _isMainview
+                                  ? (patientInfo != null
+                                      ? Mainview(patientInfo: patientInfo!)
+                                      : const Center(child: CircularProgressIndicator()))
+                                  : const GraphView(),
                             ),
                             //AI Assistant 창
 

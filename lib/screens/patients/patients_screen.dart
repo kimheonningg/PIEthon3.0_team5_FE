@@ -6,6 +6,7 @@ import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
 import 'package:piethon_team5_fe/widgets/navigation_sidebar.dart';
 import 'package:piethon_team5_fe/functions/token_manager.dart';
+import 'package:piethon_team5_fe/functions/patient_info_manager.dart';
 import 'package:piethon_team5_fe/screens/patients/create_new_patient_screen.dart';
 
 class PatientsScreen extends StatefulWidget {
@@ -81,11 +82,16 @@ class _PatientsScreenState extends State<PatientsScreen> {
             'mrn': p['patient_mrn'] ?? '',
             'phone_num': p['phone_num'] ?? '',
             'age': p['age'] ?? '',
+            'birthdate': p['birthdate'],
             'doctor_name': p['doctor_name'],
             'body_part': p['body_part'],
+            'gender': p['gender'],
             'ai_ready': p['ai_ready'] ?? true,
           };
         }).toList();
+
+        await PatientInfoManager.saveAll(mapped);
+
         setState(() {
           _patientsInfo = mapped;
           _loading = false;
