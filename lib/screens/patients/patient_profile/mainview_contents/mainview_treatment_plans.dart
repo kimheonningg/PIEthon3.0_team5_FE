@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
+import 'package:piethon_team5_fe/screens/schedule/create_schedule_screen.dart';
 
 enum CardType { currentMedications, scheduledProcedures, followUpAppointments, treatmentHistory }
 
@@ -79,7 +80,9 @@ class DashboardCard extends StatelessWidget {
                       ? const SizedBox()
                       : ElevatedButton.icon(
                           onPressed: () {
-                            print("앨랠래~");
+                            if (cardType == CardType.followUpAppointments) {
+                              Navigator.pushNamed(context, '/schedule/create');
+                            }
                           },
                           icon: const Icon(
                             Icons.add,
