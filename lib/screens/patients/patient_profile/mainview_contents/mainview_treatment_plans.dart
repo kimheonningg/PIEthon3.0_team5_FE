@@ -67,9 +67,9 @@ class DashboardCard extends StatelessWidget {
                               ? 'Scheduled Procedures'
                               : cardType == CardType.followUpAppointments
                                   ? 'Follow-up Appointments'
-                                  : 'Treatment',
+                                  : 'Treatment History',
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: MainColors.sidebarItemText,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
