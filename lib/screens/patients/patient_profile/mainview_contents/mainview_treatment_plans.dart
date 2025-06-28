@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:piethon_team5_fe/const.dart';
 import 'package:piethon_team5_fe/functions/token_manager.dart';
 import 'package:piethon_team5_fe/models/medical_history_models.dart';
+import 'package:piethon_team5_fe/models/appointment.dart';
 import 'package:piethon_team5_fe/screens/patients/patient_profile/mainview_contents/create_new_medication_screen.dart';
 import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
@@ -24,6 +25,7 @@ class MainviewTreatmentPlans extends StatefulWidget {
 class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
   List<MedicationModel> _medicationHistories = [];
   List<ProcedureModel> _procedureHistories = [];
+  List<Appointment> _appointments = [];
 
   // Medication 정보 가져오기
   Future<void> _fetchMedications() async {
@@ -81,6 +83,29 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
     }
   }
 
+  // Appointment/schedule 정보 가져오기
+  Future<void> _fetchAppointments() async {
+    try {
+      final token = await TokenManager.getAccessToken();
+      final response = await http.get(
+        Uri.parse('$BASE_URL/appointments/'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> json = jsonDecode(utf8.decode(response.bodyBytes));
+        final List<dynamic> _appointments = json['appointments'] ?? [];
+      } else {
+        print('[Appointment] Failed: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('[Appointment] Error: $e');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -114,7 +139,9 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
             DashboardCard(
               cardType: CardType.followUpAppointments,
               patientMrn: widget.patientMrn,
-              contents: const [],
+              contents: _appointments.map((appointment) {
+                return [appointment.appointmentDetail, ''];
+              }).toList(),
             ),
             Gaps.v20,
             DashboardCard(
