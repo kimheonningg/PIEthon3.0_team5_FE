@@ -13,7 +13,9 @@ import 'package:piethon_team5_fe/screens/schedule/create_schedule_screen.dart';
 enum CardType { currentMedications, scheduledProcedures, followUpAppointments, treatmentHistory }
 
 class MainviewTreatmentPlans extends StatefulWidget {
-  const MainviewTreatmentPlans({super.key});
+  final String patientMrn;
+
+  const MainviewTreatmentPlans({super.key, required this.patientMrn});
 
   @override
   State<MainviewTreatmentPlans> createState() => _MainviewTreatmentPlansState();
@@ -64,31 +66,13 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            DashboardCard(
-              cardType: CardType.currentMedications,
-              contents: _medications,
-              fetchFunction: () {
-                _fetchMedications();
-              },
-            ),
+            DashboardCard(cardType: CardType.currentMedications, patientMrn: widget.patientMrn),
             Gaps.v20,
-            DashboardCard(
-              cardType: CardType.scheduledProcedures,
-              contents: const [],
-              fetchFunction: () {},
-            ),
+            DashboardCard(cardType: CardType.scheduledProcedures, patientMrn: widget.patientMrn),
             Gaps.v20,
-            DashboardCard(
-              cardType: CardType.followUpAppointments,
-              contents: const [],
-              fetchFunction: () {},
-            ),
+            DashboardCard(cardType: CardType.followUpAppointments, patientMrn: widget.patientMrn),
             Gaps.v20,
-            DashboardCard(
-              cardType: CardType.treatmentHistory,
-              contents: const [],
-              fetchFunction: () {},
-            ),
+            DashboardCard(cardType: CardType.treatmentHistory, patientMrn: widget.patientMrn),
           ],
         ),
       ),
@@ -98,15 +82,9 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
 
 class DashboardCard extends StatelessWidget {
   final CardType cardType;
-  final List<List<String>> contents;
-  final Function fetchFunction;
+  final String patientMrn;
 
-  const DashboardCard({
-    super.key,
-    required this.cardType,
-    required this.contents,
-    required this.fetchFunction,
-  });
+  const DashboardCard({super.key, required this.cardType, required this.patientMrn});
 
   @override
   Widget build(BuildContext context) {
@@ -153,6 +131,12 @@ class DashboardCard extends StatelessWidget {
                             }
                             if (cardType == CardType.followUpAppointments) {
                               Navigator.pushNamed(context, '/schedule/create');
+                            }
+                            if (cardType == CardType.currentMedications) {
+                              Navigator.pushNamed(context, '/medication/create/$patientMrn');
+                            }
+                            if (cardType == CardType.scheduledProcedures) {
+                              Navigator.pushNamed(context, '/procedure/create/$patientMrn');
                             }
                           },
                           icon: const Icon(

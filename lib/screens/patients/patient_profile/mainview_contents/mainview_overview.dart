@@ -30,6 +30,30 @@ class Examination {
   }
 }
 
+class Medication {
+  final String id;
+  final String title;
+  final String content;
+  final DateTime date;
+
+  Medication({
+    required this.id,
+    required this.title,
+    required this.content,
+    required this.date,
+  });
+
+  factory Medication.fromJson(Map<String, dynamic> json) {
+    return Medication(
+      id: json['medicalhistory_id'],
+      title: json['medicalhistory_title'] ?? 'Untitled',
+      content: json['medicalhistory_content'] ?? '',
+      date: DateTime.parse(json['medicalhistory_date']),
+    );
+  }
+}
+
+
 class MainviewOverview extends StatefulWidget {
   final String patientMrn;
 
@@ -152,11 +176,42 @@ class TreatmentPlanCard extends StatefulWidget {
 
 class _TreatmentPlanCardState extends State<TreatmentPlanCard> {
   Appointment? _nextAppointment;
+  List<Medication> _medicationHistories = [];
 
   @override
   void initState() {
     super.initState();
     _fetchNextAppointment();
+    _fetchMedications();
+  }
+
+  Future<void> _fetchMedications() async {
+    try {
+      final token = await TokenManager.getAccessToken();
+      final response = await http.get(
+        Uri.parse('$BASE_URL/medicalhistories/medications/${widget.patientMrn}'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> body = jsonDecode(utf8.decode(response.bodyBytes));
+        if (body['success'] == true) {
+          final List<dynamic> histories = body['medical_histories'];
+          setState(() {
+            _medicationHistories = histories
+                .map((e) => Medication.fromJson(e))
+                .toList();
+          });
+        }
+      } else {
+        print('[Medications] Failed: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('[Medications] Error: $e');
+    }
   }
 
   Future<void> _fetchNextAppointment() async {
@@ -201,12 +256,16 @@ class _TreatmentPlanCardState extends State<TreatmentPlanCard> {
                     fontSize: 14,
                     fontWeight: FontWeight.w600)),
           ),
-          _buildListItem(Icons.medication_outlined, 'Albuterol Inhaler',
-              '2 puffs every 4-6 hours as needed'),
-          _buildListItem(Icons.medication_outlined, 'Fluticasone Propionate',
-              '2 puffs twice daily'),
-          _buildListItem(
-              Icons.medication_outlined, 'Montelukast', '10mg once daily at bedtime'),
+          ..._medicationHistories.map((h) => _buildListItem(
+                Icons.medication_outlined,
+                h.title,
+                h.content,
+              )),
+          if (_medicationHistories.isEmpty)
+            const Text(
+              'No medication histories found.',
+              style: TextStyle(color: Colors.grey, fontSize: 14),
+            ),
           Gaps.v8,
           const Divider(
             color: MainColors.dividerLine,

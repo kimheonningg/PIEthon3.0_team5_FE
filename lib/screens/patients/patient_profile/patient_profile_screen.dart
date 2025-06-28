@@ -1,10 +1,15 @@
 // "/profile/patient" 경로
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart'; 
 import 'package:piethon_team5_fe/screens/patients/patient_profile/graphview.dart';
 import 'package:piethon_team5_fe/screens/patients/patient_profile/mainview.dart';
 import 'package:piethon_team5_fe/screens/patients/patient_profile/patient_profile_sidebar.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
 import 'package:piethon_team5_fe/functions/patient_info_manager.dart';
+import 'package:piethon_team5_fe/const.dart';
+import 'package:piethon_team5_fe/functions/token_manager.dart';
 
 import '../../../widgets/gaps.dart';
 
@@ -20,6 +25,9 @@ class PatientProfileScreen extends StatefulWidget {
 class _PatientProfileScreen extends State<PatientProfileScreen> {
   bool _isMainview = true; //MainView를 보여주는 중인지, GraphView를 보여주는 중인지
   bool _isAIAssistantShowing = true; //AI Assistant 창 표시 여부
+  final TextEditingController _chatController = TextEditingController();
+  List<Map<String, dynamic>> _chatMessages = [];
+  String? _conversationId;
 
   Map<String, dynamic>? patientInfo;
 
@@ -34,6 +42,56 @@ class _PatientProfileScreen extends State<PatientProfileScreen> {
     setState(() {
       patientInfo = info;
     });
+  }
+
+  List<String> _extractReferences(String text) {
+    final internal = RegExp(r'\b[a-zA-Z]+_[a-zA-Z0-9]+\b');
+    final external = RegExp(r'\[([a-zA-Z0-9]{6,12})\]');
+
+    final internalMatches = internal.allMatches(text).map((m) => m.group(0)!);
+    final externalMatches = external.allMatches(text).map((m) => "[${m.group(1)!}]");
+
+    return [...internalMatches, ...externalMatches].toSet().toList(); // 중복 제거
+  }
+
+  Future<void> _sendMessage() async {
+    final query = _chatController.text.trim();
+    if (query.isEmpty || patientInfo == null) return;
+
+    setState(() {
+      _chatMessages.add({"isUser": true, "text": query});
+      _chatController.clear();
+    });
+
+    final uri = Uri.parse('$BASE_URL/agent/chat');
+    final body = jsonEncode({
+      "query": query,
+      "patient_mrn": patientInfo!['mrn'],
+      if (_conversationId != null) "conversation_id": _conversationId,
+    });
+
+    final token = await TokenManager.getAccessToken();
+    final response = await http.post(uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: body);
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      final text = json["response"]["text"] ?? "";
+      final references = _extractReferences(text);
+
+      setState(() {
+        _conversationId = json["conversation_id"];
+        _chatMessages.add({
+          "isUser": false,
+          "text": text,
+          "references": references,
+        });
+      });
+    }
   }
 
   @override
@@ -205,38 +263,41 @@ class _PatientProfileScreen extends State<PatientProfileScreen> {
                                   // 메인 채팅
                                   Expanded(
                                       child: SingleChildScrollView(
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                                      child: Column(
-                                        children: [
-                                          _buildChatMessage(
-                                            isUser: false,
-                                            text:
-                                                "Hello! I've analyzed Emily Browning's medical records. The recent MRI shows a pulmonary nodule that has grown since the previous CT scan. Would you like me to provide more details about this finding?",
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                                          child: Column(
+                                            children: _chatMessages.map((msg) {
+                                              return _buildChatMessage(
+                                                isUser: msg["isUser"],
+                                                text: msg["text"],
+                                                references: msg["references"]?.cast<String>(),
+                                              );
+                                            }).toList(),
                                           ),
-                                          _buildChatMessage(
-                                            isUser: true,
-                                            text: "Yes, please provide more details about the nodule and any recommendations.",
-                                          ),
-                                        ],
+                                        ),
                                       ),
-                                    ),
-                                  )),
+                                  ),
                                   // 채팅 입력 필드
                                   Padding(
                                     padding: const EdgeInsets.all(16.0),
-                                    child: TextField(
+                                    child:TextField(
+                                      controller: _chatController,
                                       decoration: InputDecoration(
                                         hintText: 'Ask a question about this patient...',
                                         hintStyle: const TextStyle(color: MainColors.hinttext, fontSize: 14),
                                         filled: true,
                                         fillColor: MainColors.textfield,
-                                        suffixIcon:
-                                            IconButton(icon: const Icon(Icons.send), color: Colors.white, onPressed: () {}),
+                                        suffixIcon: IconButton(
+                                          icon: const Icon(Icons.send),
+                                          color: Colors.white,
+                                          onPressed: _sendMessage,
+                                        ),
                                         border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: BorderSide.none,
+                                        ),
                                       ),
-                                    ),
+                                    )
                                   ),
                                 ],
                               ),
@@ -251,7 +312,12 @@ class _PatientProfileScreen extends State<PatientProfileScreen> {
     );
   }
 
-  Widget _buildChatMessage({required String text, required bool isUser}) {
+  Widget _buildChatMessage({
+    required String text, 
+    required bool isUser,
+    List<String>? references,
+  }) {
+
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -261,12 +327,38 @@ class _PatientProfileScreen extends State<PatientProfileScreen> {
           color: isUser ? MainColors.button2 : MainColors.sidebarItemSelectedText,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Text(
-          text,
-          style: const TextStyle(color: Colors.white),
-          // overflow: _isAIAssistantShowing ? null : TextOverflow.ellipsis,
-        ),
+        child: Column(
+          crossAxisAlignment:
+              isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: [
+            Text(text, style: const TextStyle(color: Colors.white)),
+            if (!isUser && references != null && references.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: references.map((ref) {
+                  return Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      ref,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                    ),
+                  );
+                }).toList(),
+            )
+          ]
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
