@@ -268,19 +268,19 @@ class _GraphViewState extends State<GraphView> {
   <div class="legend" id="legend">
     <div class="legend-item">
       <div class="legend-color" style="background-color: #e74c3c;"></div>
-      <span>진료</span>
+      <span>Imaging</span>
     </div>
     <div class="legend-item">
       <div class="legend-color" style="background-color: #3498db;"></div>
-      <span>검사</span>
+      <span>Procedure</span>
     </div>
     <div class="legend-item">
       <div class="legend-color" style="background-color: #2ecc71;"></div>
-      <span>상담</span>
+      <span>Lab History</span>
     </div>
     <div class="legend-item">
       <div class="legend-color" style="background-color: #f39c12;"></div>
-      <span>관리</span>
+      <span>Medication</span>
     </div>
     <div class="legend-item">
       <div class="legend-color" style="background-color: #9b59b6;"></div>
@@ -291,6 +291,7 @@ class _GraphViewState extends State<GraphView> {
   <div class="controls">
     <button class="btn btn-primary" onclick="refreshData()">새로고침</button>
     <button class="btn btn-primary" onclick="calculateSimilarity()">유사도 계산</button>
+    <button class="btn btn-primary" onclick="setCenterNode()">중심 지정</button>
     <button class="btn btn-secondary" onclick="changeLayout('timeline')">타임라인</button>
     <button class="btn btn-secondary" onclick="changeLayout('circle')">원형</button>
     <button class="btn btn-secondary" onclick="changeLayout('grid')">격자</button>
@@ -444,21 +445,16 @@ class _GraphViewState extends State<GraphView> {
         });
         
         // 서버에서 받아온 엣지 데이터로 엣지 생성
-        // 노드 이름으로 ID를 찾기 위한 맵 생성
-        const nameToIdMap = {};
-        sortedData.forEach(item => {
-          nameToIdMap[item.name] = item.id;
-        });
+        // 노드 ID 존재 여부 확인을 위한 Set 생성
+        const nodeIdSet = new Set(sortedData.map(item => item.id));
         
-        console.log('노드 이름-ID 매핑:', nameToIdMap);
+        console.log('노드 ID 목록:', Array.from(nodeIdSet));
         console.log('엣지 데이터:', edgeData);
         
         const edges = (edgeData || []).filter(edge => {
-          // 소스와 타겟 노드가 모두 존재하는지 확인
-          const sourceExists = nameToIdMap[edge.from_node];
-          const targetExists = nameToIdMap[edge.to_node];
-          
-          
+          // 소스와 타겟 노드가 모두 존재하는지 확인 (ID 기반)
+          const sourceExists = nodeIdSet.has(edge.from_node);
+          const targetExists = nodeIdSet.has(edge.to_node);
           
           return sourceExists && targetExists;
         }).map(edge => {
@@ -468,18 +464,23 @@ class _GraphViewState extends State<GraphView> {
           if (edge.type === 'IS_SAMEDATE') {
             label = '동일 날짜';
             edgeType = 'samedate';
+                        console.log('엣지 타입:', edge.type);
+
           } else if (edge.type === 'IS_TIMELINE') {
             label = '타임라인';
             edgeType = 'timeline';
+                        console.log('엣지 타입:', edge.type);
+
           } else {
             label = edge.type || '연결';
             edgeType = 'related';
+            console.log('엣지 타입:', edge.type);
           }
           
           return {
             data: {
-              source: nameToIdMap[edge.from_node],
-              target: nameToIdMap[edge.to_node],
+              source: edge.from_node,
+              target: edge.to_node,
               label: label,
               type: edgeType,
               score: edge.score,
@@ -883,6 +884,50 @@ class _GraphViewState extends State<GraphView> {
       } catch (error) {
         console.error('유사도 계산 실패:', error);
         alert('유사도 계산에 실패했습니다: ' + error.message);
+      }
+    }
+
+    // 중심 노드 지정
+    async function setCenterNode() {
+      try {
+        // 현재 선택된 노드가 있는지 확인
+        let centerNodeId = null;
+        
+        if (cy && cy.\$(':selected').length > 0) {
+          // 선택된 노드가 있으면 그 노드를 중심으로 설정
+          centerNodeId = cy.\$(':selected')[0].data('id');
+          console.log('선택된 노드를 중심으로 설정:', centerNodeId);
+        } else if (medicalData && medicalData.length > 0) {
+          // 선택된 노드가 없으면 첫 번째 노드를 중심으로 설정
+          centerNodeId = medicalData[0].id;
+          console.log('첫 번째 노드를 중심으로 설정:', centerNodeId);
+        } else {
+          throw new Error('중심으로 설정할 노드가 없습니다.');
+        }
+        
+        console.log('중심 노드 지정 요청 중...', centerNodeId);
+        
+        const response = await fetch(`http://localhost:8000/graph/edges/similarity/center/\${centerNodeId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Origin': 'http://localhost'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`중심 노드 지정 실패! status: \${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log('중심 노드 지정 완료:', result);
+        
+        // 중심 노드 지정 완료 후 데이터 새로고침
+        refreshData();
+        
+      } catch (error) {
+        console.error('중심 노드 지정 실패:', error);
+        alert('중심 노드 지정에 실패했습니다: ' + error.message);
       }
     }
 
