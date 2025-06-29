@@ -45,71 +45,52 @@ class _PatientProfileScreen extends State<PatientProfileScreen> {
   }
 
   Future<String> _fetchReferenceContent(String ref) async {
-    final token = await TokenManager.getAccessToken();
-    final headers = {'Authorization': 'Bearer $token'};
+  final token = await TokenManager.getAccessToken();
+  final headers = {'Authorization': 'Bearer $token'};
 
-    late Uri uri;
+  final referenceId = ref.startsWith('[') && ref.endsWith(']')
+      ? ref.substring(1, ref.length - 1)
+      : ref;
 
-    if (ref.startsWith('notes_')) {
-      final id = ref.substring('notes_'.length);
-      uri = Uri.parse('$BASE_URL/notes/$id');
-    } else if (ref.startsWith('appointments_')) {
-      final id = ref.substring('appointments_'.length);
-      uri = Uri.parse('$BASE_URL/appointments/by/id/$id');
-    } else if (ref.startsWith('examinations_')) {
-      final id = ref.substring('examinations_'.length);
-      uri = Uri.parse('$BASE_URL/examinations/$id');
-    } else if (ref.startsWith('medicalhistories_')) {
-      final id = ref.substring('medicalhistories_'.length);
-      uri = Uri.parse('$BASE_URL/medicalhistories/by/id/$id');
-    } else if (ref.startsWith('labresults_')) {
-      final id = ref.substring('labresults_'.length);
-      uri = Uri.parse('$BASE_URL/labresults/$id');
-    } else if (ref.startsWith('imaging_')) {
-      final id = ref.substring('imaging_'.length);
-      uri = Uri.parse('$BASE_URL/imaging/$id');
-    } else if (RegExp(r'^\[\w+\]$').hasMatch(ref)) {
-      // External reference, just show ID
-      return 'External reference: $ref';
-    } else {
-      return 'Unknown reference type';
-    }
+  final uri = Uri.parse('$BASE_URL/references/resolve/$referenceId');
 
+  try {
+    final response = await http.get(uri, headers: headers);
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      final type = json['type'];
+      final title = json['title'] ?? 'Untitled';
+      final contentData = json['content'] ?? {};
 
-    print(uri);
+      String content = '';
 
-    try {
-      final response = await http.get(uri, headers: headers);
-      if (response.statusCode == 200) {
-        final json = jsonDecode(response.body);
-        String title = 'unknown';
-        String content = '';
-        if (ref.startsWith('appointments_')) {
-          title = json['appointment']['appointment_detail'];
-          content = '';
-        } else if (ref.startsWith('medicalhistories_')) {
-          title = json['medicalhistory']['medicalhistory_title'];
-          content = json['medicalhistory']['medicalhistory_content'];
-        } else{
-          title = 'unknown';
-          content = '';
+      if (type == 'internal') {
+        if (contentData is String) {
+          content = contentData;
+        } else if (contentData is Map && contentData['text'] != null) {
+          content = contentData['text'];
+        } else if (contentData is Map) {
+          content = contentData.values.join('\n');
         }
-        
-        String result = '📌 Title: \n$title';
-        if (content.trim().isNotEmpty || content != '') {
-          result += '\n\n📄 Content:\n$content';
-        }
-        else {
-          result += '';
-        }
-        return result;
-      } else {
-        return 'Failed to load reference: ${response.statusCode}';
       }
-    } catch (e) {
-      return 'Error fetching reference: $e';
+
+      if (type == 'external' && contentData['external_url'] != null) {
+        content = '${contentData['description'] ?? ''}\n\n🔗 URL: ${contentData['external_url']}';
+      }
+
+      String result = '📌 Title:\n$title';
+      if (content.trim().isNotEmpty) {
+        result += '\n\n📄 Content:\n$content';
+      }
+      return result;
+    } else {
+      return '❌ Failed to resolve reference: ${response.statusCode}';
     }
+  } catch (e) {
+    return '❌ Error resolving reference: $e';
   }
+}
+
 
 
   List<String> _extractReferences(String text) {
