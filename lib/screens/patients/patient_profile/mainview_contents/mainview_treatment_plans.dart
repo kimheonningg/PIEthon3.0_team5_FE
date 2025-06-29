@@ -26,7 +26,7 @@ class MainviewTreatmentPlans extends StatefulWidget {
 class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
   List<MedicationModel> _medicationHistories = [];
   List<ProcedureModel> _procedureHistories = [];
-  List<Appointment> _appointments = [];
+  List<Appointment> _appointmentHistories = [];
 
   // Medication 정보 가져오기
   Future<void> _fetchMedications() async {
@@ -97,13 +97,18 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> json = jsonDecode(utf8.decode(response.bodyBytes));
-        final List<dynamic> _appointments = json['appointments'] ?? [];
+        final Map<String, dynamic> body = jsonDecode(utf8.decode(response.bodyBytes));
+        if (body['success'] == true) {
+          final List<dynamic> histories = body['appointments'];
+          setState(() {
+            _appointmentHistories = histories.map((e) => Appointment.fromJson(e)).toList();
+          });
+        }
       } else {
-        print('[Appointment] Failed: ${response.statusCode}');
+        print('[Appointments] Failed: ${response.statusCode}');
       }
     } catch (e) {
-      print('[Appointment] Error: $e');
+      print('[Appointments] Error: $e');
     }
   }
 
@@ -145,7 +150,7 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
             DashboardCard(
               cardType: CardType.followUpAppointments,
               patientMrn: widget.patientMrn,
-              contents: _appointments.map((appointment) {
+              contents: _appointmentHistories.map((appointment) {
                 final isHighlighted = referenceId == appointment.appointmentId;
                 return [appointment.appointmentDetail, '', isHighlighted.toString()];
               }).toList(),
