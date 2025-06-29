@@ -321,16 +321,27 @@ class AddHistoryDialog extends StatefulWidget {
 
 class _AddHistoryDialogState extends State<AddHistoryDialog> {
   final _dateTextController = TextEditingController();
+  final _titleController = TextEditingController();
+  final _contentController = TextEditingController();
   DateTime? _selectedDate;
   String _selectedType = 'Lab Result';
   html.File? _selectedFile;
   bool _isUploading = false;
 
-  final List<String> _historyTypes = ['Lab Result'];
+  final List<String> _historyTypes = [
+    'Lab Result',
+    'Condition',
+    'Medication',
+    'Imaging',
+    'Surgery',
+    'Clinical Notes'
+  ];
 
   @override
   void dispose() {
     _dateTextController.dispose();
+    _titleController.dispose();
+    _contentController.dispose();
     super.dispose();
   }
 
@@ -379,11 +390,27 @@ class _AddHistoryDialogState extends State<AddHistoryDialog> {
       return;
     }
 
-    if (_selectedFile == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('파일을 선택해주세요')),
-      );
-      return;
+    // Lab Result의 경우 파일이 필요, 다른 유형은 텍스트 입력이 필요
+    if (_selectedType == 'Lab Result') {
+      if (_selectedFile == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('파일을 선택해주세요')),
+        );
+        return;
+      }
+    } else {
+      if (_titleController.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('제목을 입력해주세요')),
+        );
+        return;
+      }
+      if (_contentController.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('내용을 입력해주세요')),
+        );
+        return;
+      }
     }
 
     setState(() {
@@ -402,31 +429,52 @@ class _AddHistoryDialogState extends State<AddHistoryDialog> {
       // TODO: 실제 환자 MRN을 가져와야 합니다
       const patientMrn = "29303042"; // 임시값
 
-      // HTML File을 Uint8List로 변환
-      final reader = html.FileReader();
-      reader.readAsArrayBuffer(_selectedFile!);
-      await reader.onLoad.first;
-      final Uint8List fileBytes = reader.result as Uint8List;
+      http.Response response;
 
-      final request = http.MultipartRequest(
-        'POST',
-        Uri.parse('$BASE_URL/labresults/parse_and_create'),
-      );
+      if (_selectedType == 'Lab Result') {
+        // Lab Result - 파일 업로드
+        final reader = html.FileReader();
+        reader.readAsArrayBuffer(_selectedFile!);
+        await reader.onLoad.first;
+        final Uint8List fileBytes = reader.result as Uint8List;
 
-      request.headers['Authorization'] = 'Bearer $token';
-      request.fields['patient_mrn'] = patientMrn;
-      request.fields['lab_date'] = _selectedDate!.toIso8601String();
+        final request = http.MultipartRequest(
+          'POST',
+          Uri.parse('$BASE_URL/labresults/parse_and_create'),
+        );
 
-      request.files.add(
-        http.MultipartFile.fromBytes(
-          'image',
-          fileBytes,
-          filename: _selectedFile!.name,
-        ),
-      );
+        request.headers['Authorization'] = 'Bearer $token';
+        request.fields['patient_mrn'] = patientMrn;
+        request.fields['lab_date'] = _selectedDate!.toIso8601String();
 
-      final response = await request.send();
-      final responseBody = await response.stream.bytesToString();
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'image',
+            fileBytes,
+            filename: _selectedFile!.name,
+          ),
+        );
+
+        final streamedResponse = await request.send();
+        response = await http.Response.fromStream(streamedResponse);
+      } else {
+        // 다른 유형들 - 텍스트 기반 Medical History 생성
+        final url = Uri.parse('$BASE_URL/medicalhistories/create');
+        final headers = {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        };
+
+        final body = {
+          "medicalhistory_title": _titleController.text.trim(),
+          "medicalhistory_content": _contentController.text.trim(),
+          "medicalhistory_date": _selectedDate!.toIso8601String(),
+          "patient_mrn": patientMrn,
+          "tags": [_selectedType.toLowerCase().replaceAll(' ', '_')],
+        };
+
+        response = await http.post(url, headers: headers, body: jsonEncode(body));
+      }
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -435,7 +483,7 @@ class _AddHistoryDialogState extends State<AddHistoryDialog> {
         Navigator.of(context).pop();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('업로드 실패: $responseBody')),
+          SnackBar(content: Text('업로드 실패: ${response.body}')),
         );
       }
     } catch (e) {
@@ -550,47 +598,104 @@ class _AddHistoryDialogState extends State<AddHistoryDialog> {
             ),
             Gaps.v20,
 
-            // 파일 첨부
-            const Text(
-              '파일 첨부',
-              style: TextStyle(
-                color: MainColors.sidebarItemText,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            Gaps.v8,
-            GestureDetector(
-              onTap: _pickFile,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: MainColors.textfield,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: MainColors.dividerLine,
-                    style: BorderStyle.solid,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.attach_file, color: MainColors.hinttext),
-                    Gaps.h12,
-                    Expanded(
-                      child: Text(
-                        _selectedFile?.name ?? '파일을 선택하세요',
-                        style: TextStyle(
-                          color: _selectedFile != null ? Colors.white : MainColors.hinttext,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Gaps.v24,
+                         // 조건부 입력 필드들
+             if (_selectedType == 'Lab Result') ...[
+               // 파일 첨부 (Lab Result만)
+               const Text(
+                 '파일 첨부',
+                 style: TextStyle(
+                   color: MainColors.sidebarItemText,
+                   fontSize: 14,
+                   fontWeight: FontWeight.w500,
+                 ),
+               ),
+               Gaps.v8,
+               GestureDetector(
+                 onTap: _pickFile,
+                 child: Container(
+                   width: double.infinity,
+                   padding: const EdgeInsets.all(16),
+                   decoration: BoxDecoration(
+                     color: MainColors.textfield,
+                     borderRadius: BorderRadius.circular(8),
+                     border: Border.all(
+                       color: MainColors.dividerLine,
+                       style: BorderStyle.solid,
+                     ),
+                   ),
+                   child: Row(
+                     children: [
+                       const Icon(Icons.attach_file, color: MainColors.hinttext),
+                       Gaps.h12,
+                       Expanded(
+                         child: Text(
+                           _selectedFile?.name ?? '파일을 선택하세요',
+                           style: TextStyle(
+                             color: _selectedFile != null ? Colors.white : MainColors.hinttext,
+                             fontSize: 16,
+                           ),
+                         ),
+                       ),
+                     ],
+                   ),
+                 ),
+               ),
+             ] else ...[
+               // 제목 입력 (다른 유형들)
+               const Text(
+                 '제목',
+                 style: TextStyle(
+                   color: MainColors.sidebarItemText,
+                   fontSize: 14,
+                   fontWeight: FontWeight.w500,
+                 ),
+               ),
+               Gaps.v8,
+               TextField(
+                 controller: _titleController,
+                 style: const TextStyle(color: Colors.white, fontSize: 16),
+                 decoration: InputDecoration(
+                   hintText: '제목을 입력하세요',
+                   filled: true,
+                   fillColor: MainColors.textfield,
+                   hintStyle: const TextStyle(color: MainColors.hinttext, fontSize: 16),
+                   border: OutlineInputBorder(
+                     borderRadius: BorderRadius.circular(8),
+                     borderSide: BorderSide.none,
+                   ),
+                   contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+                 ),
+               ),
+               Gaps.v20,
+               
+               // 내용 입력
+               const Text(
+                 '내용',
+                 style: TextStyle(
+                   color: MainColors.sidebarItemText,
+                   fontSize: 14,
+                   fontWeight: FontWeight.w500,
+                 ),
+               ),
+               Gaps.v8,
+               TextField(
+                 controller: _contentController,
+                 style: const TextStyle(color: Colors.white, fontSize: 16),
+                 maxLines: 4,
+                 decoration: InputDecoration(
+                   hintText: '내용을 입력하세요',
+                   filled: true,
+                   fillColor: MainColors.textfield,
+                   hintStyle: const TextStyle(color: MainColors.hinttext, fontSize: 16),
+                   border: OutlineInputBorder(
+                     borderRadius: BorderRadius.circular(8),
+                     borderSide: BorderSide.none,
+                   ),
+                   contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+                 ),
+               ),
+             ],
+             Gaps.v24,
 
             // 버튼들
             Row(
