@@ -1,5 +1,6 @@
 import 'dart:convert';
-
+import 'package:piethon_team5_fe/provider/mainview_tab_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:piethon_team5_fe/const.dart';
@@ -25,7 +26,7 @@ class MainviewTreatmentPlans extends StatefulWidget {
 class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
   List<MedicationModel> _medicationHistories = [];
   List<ProcedureModel> _procedureHistories = [];
-  List<Appointment> _appointments = [];
+  List<Appointment> _appointmentHistories = [];
 
   // Medication 정보 가져오기
   Future<void> _fetchMedications() async {
@@ -88,7 +89,7 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
     try {
       final token = await TokenManager.getAccessToken();
       final response = await http.get(
-        Uri.parse('$BASE_URL/appointments/'),
+        Uri.parse('$BASE_URL/appointments/${widget.patientMrn}'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -96,13 +97,18 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> json = jsonDecode(utf8.decode(response.bodyBytes));
-        final List<dynamic> _appointments = json['appointments'] ?? [];
+        final Map<String, dynamic> body = jsonDecode(utf8.decode(response.bodyBytes));
+        if (body['success'] == true) {
+          final List<dynamic> histories = body['appointments'];
+          setState(() {
+            _appointmentHistories = histories.map((e) => Appointment.fromJson(e)).toList();
+          });
+        }
       } else {
-        print('[Appointment] Failed: ${response.statusCode}');
+        print('[Appointments] Failed: ${response.statusCode}');
       }
     } catch (e) {
-      print('[Appointment] Error: $e');
+      print('[Appointments] Error: $e');
     }
   }
 
@@ -111,10 +117,19 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
     super.initState();
     _fetchMedications();
     _fetchProcedures();
+    _fetchAppointments();
   }
 
   @override
   Widget build(BuildContext context) {
+    final referenceIdRaw = context.watch<MainviewTabProvider>().referenceId;
+    final referenceType = context.watch<MainviewTabProvider>().referenceType.toLowerCase();
+    String referenceId = referenceIdRaw;
+    if (referenceIdRaw.startsWith('medicalhistories_')) {
+      referenceId = referenceIdRaw.replaceFirst('medicalhistories_', '');
+    } else if (referenceIdRaw.startsWith('appointments_')) {
+      referenceId = referenceIdRaw.replaceFirst('appointments_', '');
+    }
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -132,15 +147,17 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
               cardType: CardType.scheduledProcedures,
               patientMrn: widget.patientMrn,
               contents: _procedureHistories.map((procedure) {
-                return [procedure.title, procedure.content];
+                final isHighlighted = referenceId == procedure.id;
+                return [procedure.title, procedure.content, isHighlighted.toString()];
               }).toList(),
             ),
             Gaps.v20,
             DashboardCard(
               cardType: CardType.followUpAppointments,
               patientMrn: widget.patientMrn,
-              contents: _appointments.map((appointment) {
-                return [appointment.appointmentDetail, ''];
+              contents: _appointmentHistories.map((appointment) {
+                final isHighlighted = referenceId == appointment.appointmentId;
+                return [appointment.appointmentDetail, '', isHighlighted.toString()];
               }).toList(),
             ),
             Gaps.v20,
@@ -239,10 +256,16 @@ class DashboardCard extends StatelessWidget {
             ),
             // 카드 내용 부분
             ...contents.map((content) {
+              final bool isHighlighted = content.length >= 3 && content[2] == 'true';
               return Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
-                  color: MainColors.sidebarBackground,
+                  decoration: BoxDecoration(
+                    color: MainColors.sidebarBackground,
+                    border: isHighlighted
+                        ? Border.all(color: Colors.amber, width: 3)
+                        : Border.all(color: Colors.transparent),
+                  ),
                   child: Column(
                     children: [
                       ///////// 예시 데이터 ////////

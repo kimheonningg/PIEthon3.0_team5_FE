@@ -1,6 +1,7 @@
 // "/profile/patient" 경로
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart'; 
 import 'package:piethon_team5_fe/screens/patients/patient_profile/graphview.dart';
@@ -10,6 +11,7 @@ import 'package:piethon_team5_fe/widgets/maincolors.dart';
 import 'package:piethon_team5_fe/functions/patient_info_manager.dart';
 import 'package:piethon_team5_fe/const.dart';
 import 'package:piethon_team5_fe/functions/token_manager.dart';
+import 'package:piethon_team5_fe/provider/mainview_tab_provider.dart';
 
 import '../../../widgets/gaps.dart';
 
@@ -43,6 +45,55 @@ class _PatientProfileScreen extends State<PatientProfileScreen> {
       patientInfo = info;
     });
   }
+
+  Future<String> _fetchReferenceContent(String ref) async {
+  final token = await TokenManager.getAccessToken();
+  final headers = {'Authorization': 'Bearer $token'};
+
+  final referenceId = ref.startsWith('[') && ref.endsWith(']')
+      ? ref.substring(1, ref.length - 1)
+      : ref;
+
+  final uri = Uri.parse('$BASE_URL/references/resolve/$referenceId');
+
+  try {
+    final response = await http.get(uri, headers: headers);
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      final type = json['type'];
+      final title = json['title'] ?? 'Untitled';
+      final contentData = json['content'] ?? {};
+
+      String content = '';
+
+      if (type == 'internal') {
+        if (contentData is String) {
+          content = contentData;
+        } else if (contentData is Map && contentData['text'] != null) {
+          content = contentData['text'];
+        } else if (contentData is Map) {
+          content = contentData.values.join('\n');
+        }
+      }
+
+      if (type == 'external' && contentData['external_url'] != null) {
+        content = '${contentData['description'] ?? ''}\n\n🔗 URL: ${contentData['external_url']}';
+      }
+
+      String result = '📌 Title:\n$title';
+      if (content.trim().isNotEmpty) {
+        result += '\n\n📄 Content:\n$content';
+      }
+      return result;
+    } else {
+      return '❌ Failed to resolve reference: ${response.statusCode}';
+    }
+  } catch (e) {
+    return '❌ Error resolving reference: $e';
+  }
+}
+
+
 
   List<String> _extractReferences(String text) {
     final internal = RegExp(r'\b[a-zA-Z]+_[a-zA-Z0-9]+\b');
@@ -338,18 +389,32 @@ class _PatientProfileScreen extends State<PatientProfileScreen> {
                 spacing: 8,
                 runSpacing: 4,
                 children: references.map((ref) {
-                  return Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      ref,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
+                  final refColor = _getReferenceColor(ref);
+                  final referenceType = ref.contains('_') ? ref.split('_').first.toLowerCase() : 'external';
+                  final referenceId = ref.contains('_') ? ref.split('_').last : ref.replaceAll(RegExp(r'[\[\]]'), '');
+
+                  return GestureDetector(
+                    onTap: () {
+                      final provider = Provider.of<MainviewTabProvider>(context, listen: false);
+                      provider.showReference(referenceType, ref); // 전체 ref 전달 (e.g., "notes_abc123")
+
+                      // optionally switch mainview on if not already
+                      setState(() {
+                        _isMainview = true;
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: refColor,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        ref,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                   );
@@ -361,4 +426,16 @@ class _PatientProfileScreen extends State<PatientProfileScreen> {
     ),
   );
 }
+
+Color _getReferenceColor(String ref) {
+  if (ref.startsWith('notes_')) return Colors.blue.shade700;
+  if (ref.startsWith('appointments_')) return Colors.green.shade700;
+  if (ref.startsWith('examinations_')) return Colors.orange.shade700;
+  if (ref.startsWith('medicalhistories_')) return Colors.purple.shade700;
+  if (ref.startsWith('labresults_')) return Colors.red.shade700;
+  if (ref.startsWith('imaging_')) return Colors.indigo.shade700;
+  if (RegExp(r'^\[\w+\]$').hasMatch(ref)) return Colors.grey.shade600; // 외부 reference (e.g., [abc123])
+  return Colors.white.withOpacity(0.15); // fallback
+}
+
 }
