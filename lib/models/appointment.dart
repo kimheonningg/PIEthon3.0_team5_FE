@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class Appointment {
   final String patientName;
+  final String appointmentId;
   final String appointmentDetail;
   final DateTime startTime;
   final DateTime finishTime;
@@ -9,6 +10,7 @@ class Appointment {
 
   Appointment({
     required this.patientName,
+    required this.appointmentId,
     required this.appointmentDetail,
     required this.startTime,
     required this.finishTime,
@@ -21,6 +23,7 @@ class Appointment {
 
     return Appointment(
       patientName: name,
+      appointmentId: json['appointment_id'],
       appointmentDetail: json['appointment_detail'] ?? '-',
       startTime: DateTime.parse(json['start_time']),
       finishTime: DateTime.parse(json['finish_time']),
