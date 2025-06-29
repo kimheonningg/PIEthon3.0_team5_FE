@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:piethon_team5_fe/widgets/gaps.dart';
@@ -36,7 +37,12 @@ class ImageObject extends StatefulWidget {
 
 class _ImageObjectState extends State<ImageObject> {
   late PhotoViewController _photoViewController;
-  late double _initialScale;
+  bool _isLoading = true;
+  bool _didPrecache = false;
+  double _currentSliderValue = 0;
+  final List<String> _imageUrls = List.generate(99, (index) {
+    return 'https://cdn.kiminjae.me/piethon-viewer/test/slice_${index.toString().padLeft(4, '0')}.png';
+  });
 
   @override
   void initState() {
@@ -48,6 +54,34 @@ class _ImageObjectState extends State<ImageObject> {
   void dispose() {
     _photoViewController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didPrecache) {
+      _precacheImages();
+      _didPrecache = true;
+    }
+  }
+
+  Future<void> _precacheImages() async {
+    // 모든 이미지를 캐시하는 작업이 끝날 때까지 기다림
+    await Future.wait(
+      _imageUrls.map(
+        (url) => precacheImage(
+          CachedNetworkImageProvider(url), // CachedNetworkImage의 Provider 사용
+          context,
+        ),
+      ),
+    );
+
+    // 위젯이 아직 화면에 마운트된 상태라면 로딩 상태를 false로 변경
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _zoomIn() {
@@ -70,6 +104,8 @@ class _ImageObjectState extends State<ImageObject> {
 
   @override
   Widget build(BuildContext context) {
+    final int currentImageIndex = _currentSliderValue.toInt();
+    print(currentImageIndex);
     return Column(
       children: [
         //
@@ -146,6 +182,92 @@ class _ImageObjectState extends State<ImageObject> {
           child: Row(
             children: [
               Expanded(
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Stack(
+                        children: [
+                          //사진 뷰
+                          ClipRRect(
+                            child: _isLoading
+                                ? const CircularProgressIndicator()
+                                : CachedNetworkImage(
+                                    imageUrl: _imageUrls[currentImageIndex],
+                                    progressIndicatorBuilder: (context, url, downloadProgress) =>
+                                        CircularProgressIndicator(value: downloadProgress.progress),
+                                    errorWidget: (context, url, error) => const Icon(Icons.error),
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.6),
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.zoom_in_outlined, color: Colors.white),
+                                    onPressed: _zoomIn,
+                                    tooltip: 'Zoom In',
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.zoom_out_outlined, color: Colors.white),
+                                    onPressed: _zoomOut,
+                                    tooltip: 'Zoom Out',
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.replay,
+                                      color: Colors.white,
+                                      size: 18,
+                                    ),
+                                    onPressed: _reset,
+                                    tooltip: 'Reset',
+                                  ),
+                                  Gaps.h8,
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Gaps.v8,
+                    Text(
+                      '사진 ${currentImageIndex + 1} / 99',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+
+                    //슬라이더
+                    Slider(
+                      // 4. 슬라이더의 현재 값을 상태 변수와 연결
+                      value: _currentSliderValue,
+                      min: 0,
+                      // 5. 최댓값은 (이미지 개수 - 1)
+                      max: (_imageUrls.length - 1).toDouble(),
+                      // 6. divisions: 슬라이더를 몇 단계로 나눌지 결정 (정수 단위로만 움직이게 함)
+                      divisions: _imageUrls.length - 1,
+                      // 7. 슬라이더를 드래그할 때 표시될 라벨
+                      label: (currentImageIndex + 1).toString(),
+                      // 8. 슬라이더 값이 변경될 때마다 호출
+                      onChanged: (double value) {
+                        // setState를 호출하여 상태를 업데이트하고 화면을 다시 그리도록 함
+                        setState(() {
+                          _currentSliderValue = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Gaps.h16,
+              Expanded(
                 child: Stack(
                   children: [
                     //사진 뷰
@@ -197,8 +319,6 @@ class _ImageObjectState extends State<ImageObject> {
                   ],
                 ),
               ),
-              Gaps.h16,
-              const Expanded(child: Placeholder())
             ],
           ),
         )
