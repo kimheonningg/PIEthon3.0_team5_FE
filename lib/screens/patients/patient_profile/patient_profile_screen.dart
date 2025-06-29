@@ -1,6 +1,7 @@
 // "/profile/patient" 경로
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart'; 
 import 'package:piethon_team5_fe/screens/patients/patient_profile/graphview.dart';
@@ -10,6 +11,7 @@ import 'package:piethon_team5_fe/widgets/maincolors.dart';
 import 'package:piethon_team5_fe/functions/patient_info_manager.dart';
 import 'package:piethon_team5_fe/const.dart';
 import 'package:piethon_team5_fe/functions/token_manager.dart';
+import 'package:piethon_team5_fe/provider/mainview_tab_provider.dart';
 
 import '../../../widgets/gaps.dart';
 
@@ -388,40 +390,35 @@ class _PatientProfileScreen extends State<PatientProfileScreen> {
                 runSpacing: 4,
                 children: references.map((ref) {
                   final refColor = _getReferenceColor(ref);
-                    return GestureDetector(
-                      onTap: () async {
-                        final content = await _fetchReferenceContent(ref);
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            backgroundColor: const Color(0xFF1E1E1E),
-                            title: Text(ref, style: const TextStyle(color: Colors.white)),
-                            content: Text(content, style: const TextStyle(color: Colors.white)),
-                            actions: [
-                              TextButton(
-                                child: const Text('Close', style: TextStyle(color: Colors.white70)),
-                                onPressed: () => Navigator.of(context).pop(),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: refColor,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          ref,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
+                  final referenceType = ref.contains('_') ? ref.split('_').first.toLowerCase() : 'external';
+                  final referenceId = ref.contains('_') ? ref.split('_').last : ref.replaceAll(RegExp(r'[\[\]]'), '');
+
+                  return GestureDetector(
+                    onTap: () {
+                      final provider = Provider.of<MainviewTabProvider>(context, listen: false);
+                      provider.showReference(referenceType, ref); // 전체 ref 전달 (e.g., "notes_abc123")
+
+                      // optionally switch mainview on if not already
+                      setState(() {
+                        _isMainview = true;
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: refColor,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        ref,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
                         ),
                       ),
-                    );
-                  }).toList(),
+                    ),
+                  );
+                }).toList(),
             )
           ]
         ],

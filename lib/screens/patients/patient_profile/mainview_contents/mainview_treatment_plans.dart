@@ -1,5 +1,6 @@
 import 'dart:convert';
-
+import 'package:piethon_team5_fe/provider/mainview_tab_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:piethon_team5_fe/const.dart';
@@ -88,7 +89,7 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
     try {
       final token = await TokenManager.getAccessToken();
       final response = await http.get(
-        Uri.parse('$BASE_URL/appointments/'),
+        Uri.parse('$BASE_URL/appointments/${widget.patientMrn}'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -111,10 +112,14 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
     super.initState();
     _fetchMedications();
     _fetchProcedures();
+    _fetchAppointments();
   }
 
   @override
   Widget build(BuildContext context) {
+    final referenceIdRaw = context.watch<MainviewTabProvider>().referenceId;
+    final referenceId = referenceIdRaw.replaceFirst('medicalhistories_', '');
+    final referenceType = context.watch<MainviewTabProvider>().referenceType.toLowerCase();
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -132,7 +137,8 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
               cardType: CardType.scheduledProcedures,
               patientMrn: widget.patientMrn,
               contents: _procedureHistories.map((procedure) {
-                return [procedure.title, procedure.content];
+                final isHighlighted = referenceId == procedure.id;
+                return [procedure.title, procedure.content, isHighlighted.toString()];
               }).toList(),
             ),
             Gaps.v20,
@@ -140,7 +146,8 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
               cardType: CardType.followUpAppointments,
               patientMrn: widget.patientMrn,
               contents: _appointments.map((appointment) {
-                return [appointment.appointmentDetail, ''];
+                final isHighlighted = referenceId == appointment.appointmentId;
+                return [appointment.appointmentDetail, '', isHighlighted.toString()];
               }).toList(),
             ),
             Gaps.v20,
@@ -239,10 +246,16 @@ class DashboardCard extends StatelessWidget {
             ),
             // 카드 내용 부분
             ...contents.map((content) {
+              final bool isHighlighted = content.length >= 3 && content[2] == 'true';
               return Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
-                  color: MainColors.sidebarBackground,
+                  decoration: BoxDecoration(
+                    color: MainColors.sidebarBackground,
+                    border: isHighlighted
+                        ? Border.all(color: Colors.amber, width: 3)
+                        : Border.all(color: Colors.transparent),
+                  ),
                   child: Column(
                     children: [
                       ///////// 예시 데이터 ////////
