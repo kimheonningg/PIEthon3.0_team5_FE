@@ -292,6 +292,7 @@ class _GraphViewState extends State<GraphView> {
     <button class="btn btn-primary" onclick="refreshData()">새로고침</button>
     <button class="btn btn-primary" onclick="calculateSimilarity()">유사도 계산</button>
     <button class="btn btn-primary" onclick="setCenterNode()">중심 지정</button>
+    <button class="btn btn-primary" onclick="syncNodes()">Sync Nodes</button>
     <button class="btn btn-secondary" onclick="changeLayout('timeline')">타임라인</button>
     <button class="btn btn-secondary" onclick="changeLayout('circle')">원형</button>
     <button class="btn btn-secondary" onclick="changeLayout('grid')">격자</button>
@@ -925,11 +926,40 @@ class _GraphViewState extends State<GraphView> {
         // 중심 노드 지정 완료 후 데이터 새로고침
         refreshData();
         
-      } catch (error) {
-        console.error('중심 노드 지정 실패:', error);
-        alert('중심 노드 지정에 실패했습니다: ' + error.message);
-      }
-    }
+             } catch (error) {
+         console.error('중심 노드 지정 실패:', error);
+         alert('중심 노드 지정에 실패했습니다: ' + error.message);
+       }
+     }
+
+     // 노드 동기화
+     async function syncNodes() {
+       try {
+         console.log('노드 동기화 요청 중...');
+         
+         const response = await fetch('http://localhost:8000/graph/sync/medical-histories', {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json',
+             'Origin': 'http://localhost'
+           }
+         });
+         
+         if (!response.ok) {
+           throw new Error(`노드 동기화 실패! status: \${response.status}`);
+         }
+         
+         const result = await response.json();
+         console.log('노드 동기화 완료:', result);
+         
+         // 노드 동기화 완료 후 데이터 새로고침
+         refreshData();
+         
+       } catch (error) {
+         console.error('노드 동기화 실패:', error);
+         alert('노드 동기화에 실패했습니다: ' + error.message);
+       }
+     }
 
          // 모달 관련 함수들
      function showModal(data) {
