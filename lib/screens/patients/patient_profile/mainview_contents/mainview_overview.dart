@@ -5,6 +5,7 @@ import 'package:piethon_team5_fe/const.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:piethon_team5_fe/models/medical_history_models.dart';
 import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
 import 'package:piethon_team5_fe/functions/token_manager.dart';
@@ -29,30 +30,6 @@ class Examination {
     );
   }
 }
-
-class Medication {
-  final String id;
-  final String title;
-  final String content;
-  final DateTime date;
-
-  Medication({
-    required this.id,
-    required this.title,
-    required this.content,
-    required this.date,
-  });
-
-  factory Medication.fromJson(Map<String, dynamic> json) {
-    return Medication(
-      id: json['medicalhistory_id'],
-      title: json['medicalhistory_title'] ?? 'Untitled',
-      content: json['medicalhistory_content'] ?? '',
-      date: DateTime.parse(json['medicalhistory_date']),
-    );
-  }
-}
-
 
 class MainviewOverview extends StatefulWidget {
   final String patientMrn;
@@ -126,9 +103,8 @@ class DashboardCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-          border: Border.all(color: MainColors.dividerLine, width: 1),
-          borderRadius: BorderRadius.circular(16)),
+      decoration:
+          BoxDecoration(border: Border.all(color: MainColors.dividerLine, width: 1), borderRadius: BorderRadius.circular(16)),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: Column(
@@ -154,10 +130,7 @@ class DashboardCard extends StatelessWidget {
                 ],
               ),
             ),
-            Container(
-                padding: const EdgeInsets.all(16),
-                color: MainColors.sidebarBackground,
-                child: child),
+            Container(padding: const EdgeInsets.all(16), color: MainColors.sidebarBackground, child: child),
           ],
         ),
       ),
@@ -176,7 +149,7 @@ class TreatmentPlanCard extends StatefulWidget {
 
 class _TreatmentPlanCardState extends State<TreatmentPlanCard> {
   Appointment? _nextAppointment;
-  List<Medication> _medicationHistories = [];
+  List<MedicationModel> _medicationHistories = [];
 
   @override
   void initState() {
@@ -201,9 +174,7 @@ class _TreatmentPlanCardState extends State<TreatmentPlanCard> {
         if (body['success'] == true) {
           final List<dynamic> histories = body['medical_histories'];
           setState(() {
-            _medicationHistories = histories
-                .map((e) => Medication.fromJson(e))
-                .toList();
+            _medicationHistories = histories.map((e) => MedicationModel.fromJson(e)).toList();
           });
         }
       } else {
@@ -240,7 +211,6 @@ class _TreatmentPlanCardState extends State<TreatmentPlanCard> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return DashboardCard(
@@ -250,11 +220,7 @@ class _TreatmentPlanCardState extends State<TreatmentPlanCard> {
         children: [
           const Padding(
             padding: EdgeInsets.only(bottom: 8.0),
-            child: Text('Medications',
-                style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600)),
+            child: Text('Medications', style: TextStyle(color: Colors.grey, fontSize: 14, fontWeight: FontWeight.w600)),
           ),
           ..._medicationHistories.map((h) => _buildListItem(
                 Icons.medication_outlined,
@@ -291,9 +257,7 @@ class _TreatmentPlanCardState extends State<TreatmentPlanCard> {
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(title,
-          style: const TextStyle(
-              color: Colors.grey, fontSize: 14, fontWeight: FontWeight.w600)),
+      child: Text(title, style: const TextStyle(color: Colors.grey, fontSize: 14, fontWeight: FontWeight.w600)),
     );
   }
 
@@ -406,9 +370,7 @@ class _RecentExaminationsCardState extends State<RecentExaminationsCard> {
         children: [
           Container(
             width: 4,
-            color: isCurrent
-                ? MainColors.sidebarItemSelectedText
-                : MainColors.sidebarNameText,
+            color: isCurrent ? MainColors.sidebarItemSelectedText : MainColors.sidebarNameText,
           ),
           Gaps.h12,
           Expanded(
@@ -418,10 +380,7 @@ class _RecentExaminationsCardState extends State<RecentExaminationsCard> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold),
+                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 Gaps.v4,
                 Text(
@@ -489,8 +448,7 @@ class ImagingCard extends StatelessWidget {
                           ),
                         ),
                         backgroundColor: Color(0xEEFFFFFF),
-                        labelStyle:
-                            TextStyle(color: Colors.white, fontSize: 10),
+                        labelStyle: TextStyle(color: Colors.white, fontSize: 10),
                         padding: EdgeInsets.zero,
                       ),
                     ),
@@ -503,8 +461,7 @@ class ImagingCard extends StatelessWidget {
                     TextButton.icon(
                       style: const ButtonStyle(
                         iconColor: WidgetStatePropertyAll(Colors.white),
-                        backgroundColor:
-                            WidgetStatePropertyAll(MainColors.background),
+                        backgroundColor: WidgetStatePropertyAll(MainColors.background),
                       ),
                       icon: const Icon(Icons.image_outlined, size: 16),
                       label: const Text(
@@ -554,23 +511,14 @@ class ImagingCard extends StatelessWidget {
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('AI Analysis Results',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: MainColors.sidebarItemText)),
+                  Text('AI Analysis Results', style: TextStyle(fontWeight: FontWeight.bold, color: MainColors.sidebarItemText)),
                   Gaps.v4,
-                  Text('A 1.8 cm nodule detected...',
-                      style: TextStyle(
-                          color: MainColors.sidebarItemText, fontSize: 14)),
+                  Text('A 1.8 cm nodule detected...', style: TextStyle(color: MainColors.sidebarItemText, fontSize: 14)),
                   Gaps.v16,
                   Text('Comparison with Previous Studies',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: MainColors.sidebarItemText)),
+                      style: TextStyle(fontWeight: FontWeight.bold, color: MainColors.sidebarItemText)),
                   Gaps.v4,
-                  Text('Nodule has increased in size...',
-                      style: TextStyle(
-                          color: MainColors.sidebarItemText, fontSize: 14)),
+                  Text('Nodule has increased in size...', style: TextStyle(color: MainColors.sidebarItemText, fontSize: 14)),
                 ],
               ),
             ),

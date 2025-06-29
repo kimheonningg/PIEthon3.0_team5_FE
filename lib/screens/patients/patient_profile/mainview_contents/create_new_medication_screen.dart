@@ -8,30 +8,26 @@ import 'package:piethon_team5_fe/widgets/gaps.dart';
 import 'package:piethon_team5_fe/widgets/maincolors.dart';
 import 'package:piethon_team5_fe/functions/token_manager.dart';
 
-class CreateMedicationScreen extends StatefulWidget {
-    final String patientMrn;
-
-    const CreateMedicationScreen({
-        super.key, required this.patientMrn
-    });
+class CreateNewMedicationScreen extends StatefulWidget {
+  const CreateNewMedicationScreen({super.key});
 
   @override
-  State<CreateMedicationScreen> createState() => _CreateMedicationScreenState();
+  State<CreateNewMedicationScreen> createState() => _CreateNewPatientScreenState();
 }
 
-class _CreateMedicationScreenState extends State<CreateMedicationScreen> {
+class _CreateNewPatientScreenState extends State<CreateNewMedicationScreen> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
-  final _dateController = TextEditingController();
-  final _tagsController = TextEditingController();
+  final _dateTextController = TextEditingController();
+  final _patientMrnController = TextEditingController();
   DateTime? _date;
 
   @override
   void dispose() {
     _titleController.dispose();
     _contentController.dispose();
-    _dateController.dispose();
-    _tagsController.dispose();
+    _dateTextController.dispose();
+    _patientMrnController.dispose();
     super.dispose();
   }
 
@@ -46,26 +42,20 @@ class _CreateMedicationScreenState extends State<CreateMedicationScreen> {
     if (picked != null) {
       setState(() {
         _date = picked;
-        _dateController.text = DateFormat('yyyy-MM-dd').format(picked);
+        _dateTextController.text = DateFormat('yyyy-MM-dd').format(picked);
       });
     }
   }
 
   Future<void> _createMedication() async {
+    final title = _titleController.text;
+    final content = _contentController.text;
     if (_date == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a date')),
+        const SnackBar(content: Text('Please select a birthdate')),
       );
       return;
     }
-
-    final tags = [
-        ..._tagsController.text
-            .split(',')
-            .map((s) => s.trim())
-            .where((s) => s.isNotEmpty),
-        'medication',
-    ];
 
     final token = await TokenManager.getAccessToken();
     if (token == null) {
@@ -82,23 +72,24 @@ class _CreateMedicationScreenState extends State<CreateMedicationScreen> {
     };
 
     final body = {
-      "medicalhistory_title": _titleController.text,
-      "medicalhistory_content": _contentController.text,
+      "medicalhistory_title": title,
+      "medicalhistory_content": content,
       "medicalhistory_date": _date!.toIso8601String(),
-      "patient_mrn": widget.patientMrn,
-      "tags": tags,
+      "patient_mrn": _patientMrnController.text,
+      "tags": ['medication'],
     };
-    
+
     try {
       final response = await http.post(url, headers: headers, body: jsonEncode(body));
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Medication created successfully.')),
+          const SnackBar(content: Text('Medication data created successfully.')),
         );
+
         Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to create medication. Please try again.')),
+          const SnackBar(content: Text('Failed to create medication data. Please try again.')),
         );
       }
     } catch (e) {
@@ -141,7 +132,7 @@ class _CreateMedicationScreenState extends State<CreateMedicationScreen> {
                   controller: _titleController,
                   style: const TextStyle(color: Colors.white, fontSize: 16),
                   decoration: InputDecoration(
-                    hintText: 'Medication Title',
+                    hintText: 'title',
                     filled: true,
                     fillColor: MainColors.textfield,
                     hintStyle: const TextStyle(color: MainColors.hinttext, fontSize: 16),
@@ -154,7 +145,7 @@ class _CreateMedicationScreenState extends State<CreateMedicationScreen> {
                   controller: _contentController,
                   style: const TextStyle(color: Colors.white, fontSize: 16),
                   decoration: InputDecoration(
-                    hintText: 'Medication Content',
+                    hintText: 'content',
                     filled: true,
                     fillColor: MainColors.textfield,
                     hintStyle: const TextStyle(color: MainColors.hinttext, fontSize: 16),
@@ -164,25 +155,28 @@ class _CreateMedicationScreenState extends State<CreateMedicationScreen> {
                 ),
                 Gaps.v20,
                 TextField(
-                    controller: _dateController,
-                    readOnly: true,
-                    onTap: _pickDate,
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
-                    decoration: InputDecoration(
-                        hintText: 'Medication Prescribed Date (YYYY-MM-DD)',
-                        filled: true,
-                        fillColor: MainColors.textfield,
-                        hintStyle: const TextStyle(color: MainColors.hinttext, fontSize: 16),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                        contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+                  controller: _dateTextController,
+                  readOnly: true,
+                  onTap: _pickDate,
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  decoration: InputDecoration(
+                    hintText: 'Birthdate (YYYY-MM-DD)',
+                    filled: true,
+                    fillColor: MainColors.textfield,
+                    hintStyle: const TextStyle(color: MainColors.hinttext, fontSize: 16),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
                     ),
+                    contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+                  ),
                 ),
                 Gaps.v20,
                 TextField(
-                  controller: _tagsController,
+                  controller: _patientMrnController,
                   style: const TextStyle(color: Colors.white, fontSize: 16),
                   decoration: InputDecoration(
-                    hintText: 'Enter tags. Separate with commas.',
+                    hintText: 'MRN',
                     filled: true,
                     fillColor: MainColors.textfield,
                     hintStyle: const TextStyle(color: MainColors.hinttext, fontSize: 16),
@@ -197,7 +191,7 @@ class _CreateMedicationScreenState extends State<CreateMedicationScreen> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(backgroundColor: MainColors.button),
                     onPressed: _createMedication,
-                    child: const Text('Add', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                    child: const Text('Create', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
                   ),
                 ),
               ],

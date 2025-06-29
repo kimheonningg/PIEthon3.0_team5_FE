@@ -40,8 +40,8 @@ class _CreateProcedureScreenState extends State<CreateProcedureScreen> {
     final picked = await showDatePicker(
       context: context,
       initialDate: _date ?? now,
-      firstDate: DateTime(1900),
-      lastDate: now,
+      firstDate: DateTime(now.year, now.month, now.day),
+      lastDate: DateTime(now.year + 5),
     );
     if (picked != null) {
       setState(() {
@@ -141,7 +141,7 @@ class _CreateProcedureScreenState extends State<CreateProcedureScreen> {
                   controller: _titleController,
                   style: const TextStyle(color: Colors.white, fontSize: 16),
                   decoration: InputDecoration(
-                    hintText: 'Procedure Title',
+                    hintText: 'Procedure Title', 
                     filled: true,
                     fillColor: MainColors.textfield,
                     hintStyle: const TextStyle(color: MainColors.hinttext, fontSize: 16),
