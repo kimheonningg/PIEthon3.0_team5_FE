@@ -36,10 +36,15 @@ class ImageObject extends StatefulWidget {
 }
 
 class _ImageObjectState extends State<ImageObject> {
-  late PhotoViewController _photoViewController;
   bool _isLoading = true;
   bool _didPrecache = false;
   double _currentSliderValue = 0;
+
+  late final TransformationController _transformationController;
+  double _currentScale = 0.8;
+  final double _minScale = 0.4;
+  final double _maxScale = 4.0;
+
   final List<String> _imageUrls = List.generate(99, (index) {
     return 'https://cdn.kiminjae.me/piethon-viewer/test/slice_${index.toString().padLeft(4, '0')}.png';
   });
@@ -47,12 +52,12 @@ class _ImageObjectState extends State<ImageObject> {
   @override
   void initState() {
     super.initState();
-    _photoViewController = PhotoViewController();
+    _transformationController = TransformationController();
   }
 
   @override
   void dispose() {
-    _photoViewController.dispose();
+    _transformationController.dispose();
     super.dispose();
   }
 
@@ -85,21 +90,48 @@ class _ImageObjectState extends State<ImageObject> {
   }
 
   void _zoomIn() {
-    // 현재 스케일 값에 1.2를 곱하여 확대
-    double currentScale = _photoViewController.scale ?? 1.0;
-    _photoViewController.scale = currentScale * 1.2;
+    // 현재 중앙점을 기준으로 확대
+    final center = MediaQuery.of(context).size.center(Offset.zero);
+    final newScale = _currentScale * 1.2;
+    if (newScale > _maxScale) return;
+
+    final newMatrix = Matrix4.identity()
+      ..translate(center.dx, center.dy)
+      ..scale(1.2)
+      ..translate(-center.dx, -center.dy);
+
+    // 현재 행렬에 새로운 변환을 곱함
+    final newControllerValue = _transformationController.value * newMatrix;
+    _transformationController.value = newControllerValue;
+
+    setState(() {
+      _currentScale = newScale;
+    });
   }
 
   void _zoomOut() {
-    // 현재 스케일 값에 0.8을 곱하여 축소
-    double currentScale = _photoViewController.scale ?? 1.0;
-    _photoViewController.scale = currentScale * 0.8;
+    final center = MediaQuery.of(context).size.center(Offset.zero);
+    final newScale = _currentScale / 1.2;
+    if (newScale < _minScale) return;
+
+    final newMatrix = Matrix4.identity()
+      ..translate(center.dx, center.dy)
+      ..scale(1 / 1.2)
+      ..translate(-center.dx, -center.dy);
+
+    final newControllerValue = _transformationController.value * newMatrix;
+    _transformationController.value = newControllerValue;
+
+    setState(() {
+      _currentScale = newScale;
+    });
   }
 
-  void _reset() {
-    // 스케일과 위치를 초기 상태로 리셋
-    _photoViewController.scale = 0.25;
-    _photoViewController.position = Offset.zero;
+  void _resetZoom() {
+    _transformationController.value = Matrix4.identity();
+    setState(() {
+      _currentScale = 0.8;
+    });
   }
 
   @override
@@ -178,107 +210,41 @@ class _ImageObjectState extends State<ImageObject> {
         ),
         Gaps.v12,
         SizedBox(
-          height: 300,
-          child: Row(
+          height: 400,
+          child: Column(
             children: [
               Expanded(
-                child: Column(
+                child: Stack(
                   children: [
-                    Expanded(
-                      child: Stack(
-                        children: [
-                          //사진 뷰
-                          ClipRRect(
-                            child: _isLoading
-                                ? const CircularProgressIndicator()
-                                : CachedNetworkImage(
+                    //사진 뷰
+                    ClipRRect(
+                      child: _isLoading
+                          ? const CircularProgressIndicator()
+                          : InteractiveViewer(
+                              transformationController: _transformationController,
+                              minScale: _minScale,
+                              maxScale: _maxScale,
+                              // 사용자가 손가락으로 줌을 했을 때 _currentScale 업데이트
+                              onInteractionEnd: (details) {
+                                setState(() {
+                                  // value.getMaxScaleOnAxis()를 통해 현재 배율을 얻음
+                                  _currentScale = _transformationController.value.getMaxScaleOnAxis();
+                                });
+                              },
+                              child: Center(
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  child: CachedNetworkImage(
                                     imageUrl: _imageUrls[currentImageIndex],
                                     progressIndicatorBuilder: (context, url, downloadProgress) =>
                                         CircularProgressIndicator(value: downloadProgress.progress),
                                     errorWidget: (context, url, error) => const Icon(Icons.error),
                                     fit: BoxFit.cover,
                                   ),
-                          ),
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Container(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.6),
-                                borderRadius: BorderRadius.circular(24),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.zoom_in_outlined, color: Colors.white),
-                                    onPressed: _zoomIn,
-                                    tooltip: 'Zoom In',
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.zoom_out_outlined, color: Colors.white),
-                                    onPressed: _zoomOut,
-                                    tooltip: 'Zoom Out',
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.replay,
-                                      color: Colors.white,
-                                      size: 18,
-                                    ),
-                                    onPressed: _reset,
-                                    tooltip: 'Reset',
-                                  ),
-                                  Gaps.h8,
-                                ],
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Gaps.v8,
-                    Text(
-                      '사진 ${currentImageIndex + 1} / 99',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-
-                    //슬라이더
-                    Slider(
-                      // 4. 슬라이더의 현재 값을 상태 변수와 연결
-                      value: _currentSliderValue,
-                      min: 0,
-                      // 5. 최댓값은 (이미지 개수 - 1)
-                      max: (_imageUrls.length - 1).toDouble(),
-                      // 6. divisions: 슬라이더를 몇 단계로 나눌지 결정 (정수 단위로만 움직이게 함)
-                      divisions: _imageUrls.length - 1,
-                      // 7. 슬라이더를 드래그할 때 표시될 라벨
-                      label: (currentImageIndex + 1).toString(),
-                      // 8. 슬라이더 값이 변경될 때마다 호출
-                      onChanged: (double value) {
-                        // setState를 호출하여 상태를 업데이트하고 화면을 다시 그리도록 함
-                        setState(() {
-                          _currentSliderValue = value;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Gaps.h16,
-              Expanded(
-                child: Stack(
-                  children: [
-                    //사진 뷰
-                    ClipRRect(
-                      child: PhotoView(
-                        imageProvider: const AssetImage('assets/images/sampleMRI.png'),
-                        controller: _photoViewController,
-                        minScale: PhotoViewComputedScale.contained * 0.8,
-                        maxScale: PhotoViewComputedScale.covered * 2.0,
-                        heroAttributes: const PhotoViewHeroAttributes(tag: "someTag"),
-                      ),
                     ),
                     Align(
                       alignment: Alignment.bottomCenter,
@@ -308,7 +274,7 @@ class _ImageObjectState extends State<ImageObject> {
                                 color: Colors.white,
                                 size: 18,
                               ),
-                              onPressed: _reset,
+                              onPressed: _resetZoom,
                               tooltip: 'Reset',
                             ),
                             Gaps.h8,
@@ -318,6 +284,25 @@ class _ImageObjectState extends State<ImageObject> {
                     ),
                   ],
                 ),
+              ),
+              Gaps.v8,
+
+              //슬라이더
+              Slider(
+                activeColor: MainColors.selectedTab,
+                value: _currentSliderValue,
+                min: 0,
+                // 최댓값은 (이미지 개수 - 1)
+                max: (_imageUrls.length - 1).toDouble(),
+                // divisions: 슬라이더를 몇 단계로 나눌지 결정 (정수 단위로만 움직이게 함)
+                divisions: _imageUrls.length - 1,
+                // 슬라이더 값이 변경될 때마다 호출
+                onChanged: (double value) {
+                  // setState를 호출하여 상태를 업데이트하고 화면을 다시 그리도록 함
+                  setState(() {
+                    _currentSliderValue = value;
+                  });
+                },
               ),
             ],
           ),
