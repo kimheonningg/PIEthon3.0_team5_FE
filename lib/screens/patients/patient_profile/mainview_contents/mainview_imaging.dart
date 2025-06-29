@@ -112,7 +112,12 @@ class _ImageObjectState extends State<ImageObject> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${study.modality} / ${study.bodyPart} / ${study.createdAt.toIso8601String()}'),
+                    Text(
+                      'Modality : ${study.modality} / BodyPart : ${study.bodyPart} / Date : ${study.createdAt.toIso8601String()}',
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: MainColors.sidebarItemText, fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    Gaps.v14,
                     ...study.series.map((series) {
                       return SeriesCard(
                         series: series,
@@ -287,9 +292,17 @@ class _SeriesCardState extends State<SeriesCard> {
   Widget build(BuildContext context) {
     final int currentImageIndex = _currentSliderValue.toInt();
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('${widget.series.sequenceType}-weighted'),
-        Text('acquired : ${widget.series.createdAt.toIso8601String()}'),
+        Text(
+          '${widget.series.sequenceType}-weighted',
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        Gaps.v2,
+        Text(
+          'acquired : ${widget.series.createdAt.toIso8601String()}',
+          style: const TextStyle(color: Colors.white),
+        ),
         Row(
           children: [
             // slider가 있는 사진 (transitionImage)
@@ -312,15 +325,11 @@ class _SeriesCardState extends State<SeriesCard> {
                                     minScale: _minScale,
                                     maxScale: _maxScale,
                                     child: Center(
-                                      child: SizedBox(
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        child: CachedNetworkImage(
-                                          imageUrl: imageUrls[currentImageIndex],
-                                          progressIndicatorBuilder: (context, url, downloadProgress) =>
-                                              CircularProgressIndicator(value: downloadProgress.progress),
-                                          errorWidget: (context, url, error) => const Icon(Icons.error),
-                                        ),
+                                      child: CachedNetworkImage(
+                                        imageUrl: imageUrls[currentImageIndex],
+                                        progressIndicatorBuilder: (context, url, downloadProgress) =>
+                                            CircularProgressIndicator(value: downloadProgress.progress),
+                                        errorWidget: (context, url, error) => const Icon(Icons.error),
                                       ),
                                     ),
                                   ),
@@ -407,25 +416,22 @@ class _SeriesCardState extends State<SeriesCard> {
                               minScale: _minScale,
                               maxScale: _maxScale,
                               child: Center(
-                                child: SizedBox(
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                    child: Stack(
-                                      children: [
-                                        Image.network(
-                                            '${widget.series.slicesDir}slice_${widget.series.sliceIdx.toString().padLeft(4, '0')}.png'),
-                                        // 사각형을 그릴 캔버스
-                                        if (_currentMatrix != null)
-                                          Positioned.fill(
-                                            child: CustomPaint(
-                                              painter: RectanglePainter(
-                                                matrix: _currentMatrix!,
-                                                rectangles: _sourceRects,
-                                              ),
-                                            ),
+                                child: Stack(
+                                  children: [
+                                    Image.network(
+                                        '${widget.series.slicesDir}slice_${widget.series.sliceIdx.toString().padLeft(4, '0')}.png'),
+                                    // 사각형을 그릴 캔버스
+                                    if (_currentMatrix != null)
+                                      Positioned.fill(
+                                        child: CustomPaint(
+                                          painter: RectanglePainter(
+                                            matrix: _currentMatrix!,
+                                            rectangles: _sourceRects,
                                           ),
-                                      ],
-                                    )),
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
                             ),
                     ),
