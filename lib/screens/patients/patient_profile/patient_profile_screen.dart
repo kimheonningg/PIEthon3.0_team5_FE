@@ -44,6 +44,74 @@ class _PatientProfileScreen extends State<PatientProfileScreen> {
     });
   }
 
+  Future<String> _fetchReferenceContent(String ref) async {
+    final token = await TokenManager.getAccessToken();
+    final headers = {'Authorization': 'Bearer $token'};
+
+    late Uri uri;
+
+    if (ref.startsWith('notes_')) {
+      final id = ref.substring('notes_'.length);
+      uri = Uri.parse('$BASE_URL/notes/$id');
+    } else if (ref.startsWith('appointments_')) {
+      final id = ref.substring('appointments_'.length);
+      uri = Uri.parse('$BASE_URL/appointments/by/id/$id');
+    } else if (ref.startsWith('examinations_')) {
+      final id = ref.substring('examinations_'.length);
+      uri = Uri.parse('$BASE_URL/examinations/$id');
+    } else if (ref.startsWith('medicalhistories_')) {
+      final id = ref.substring('medicalhistories_'.length);
+      uri = Uri.parse('$BASE_URL/medicalhistories/by/id/$id');
+    } else if (ref.startsWith('labresults_')) {
+      final id = ref.substring('labresults_'.length);
+      uri = Uri.parse('$BASE_URL/labresults/$id');
+    } else if (ref.startsWith('imaging_')) {
+      final id = ref.substring('imaging_'.length);
+      uri = Uri.parse('$BASE_URL/imaging/$id');
+    } else if (RegExp(r'^\[\w+\]$').hasMatch(ref)) {
+      // External reference, just show ID
+      return 'External reference: $ref';
+    } else {
+      return 'Unknown reference type';
+    }
+
+
+    print(uri);
+
+    try {
+      final response = await http.get(uri, headers: headers);
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        String title = 'unknown';
+        String content = '';
+        if (ref.startsWith('appointments_')) {
+          title = json['appointment']['appointment_detail'];
+          content = '';
+        } else if (ref.startsWith('medicalhistories_')) {
+          title = json['medicalhistory']['medicalhistory_title'];
+          content = json['medicalhistory']['medicalhistory_content'];
+        } else{
+          title = 'unknown';
+          content = '';
+        }
+        
+        String result = '📌 Title: \n$title';
+        if (content.trim().isNotEmpty || content != '') {
+          result += '\n\n📄 Content:\n$content';
+        }
+        else {
+          result += '';
+        }
+        return result;
+      } else {
+        return 'Failed to load reference: ${response.statusCode}';
+      }
+    } catch (e) {
+      return 'Error fetching reference: $e';
+    }
+  }
+
+
   List<String> _extractReferences(String text) {
     final internal = RegExp(r'\b[a-zA-Z]+_[a-zA-Z0-9]+\b');
     final external = RegExp(r'\[([a-zA-Z0-9]{6,12})\]');
@@ -338,22 +406,41 @@ class _PatientProfileScreen extends State<PatientProfileScreen> {
                 spacing: 8,
                 runSpacing: 4,
                 children: references.map((ref) {
-                  return Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      ref,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
+                  final refColor = _getReferenceColor(ref);
+                    return GestureDetector(
+                      onTap: () async {
+                        final content = await _fetchReferenceContent(ref);
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor: const Color(0xFF1E1E1E),
+                            title: Text(ref, style: const TextStyle(color: Colors.white)),
+                            content: Text(content, style: const TextStyle(color: Colors.white)),
+                            actions: [
+                              TextButton(
+                                child: const Text('Close', style: TextStyle(color: Colors.white70)),
+                                onPressed: () => Navigator.of(context).pop(),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: refColor,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          ref,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
-                    ),
-                  );
-                }).toList(),
+                    );
+                  }).toList(),
             )
           ]
         ],
@@ -361,4 +448,16 @@ class _PatientProfileScreen extends State<PatientProfileScreen> {
     ),
   );
 }
+
+Color _getReferenceColor(String ref) {
+  if (ref.startsWith('notes_')) return Colors.blue.shade700;
+  if (ref.startsWith('appointments_')) return Colors.green.shade700;
+  if (ref.startsWith('examinations_')) return Colors.orange.shade700;
+  if (ref.startsWith('medicalhistories_')) return Colors.purple.shade700;
+  if (ref.startsWith('labresults_')) return Colors.red.shade700;
+  if (ref.startsWith('imaging_')) return Colors.indigo.shade700;
+  if (RegExp(r'^\[\w+\]$').hasMatch(ref)) return Colors.grey.shade600; // 외부 reference (e.g., [abc123])
+  return Colors.white.withOpacity(0.15); // fallback
+}
+
 }
