@@ -123,8 +123,13 @@ class _MainviewTreatmentPlansState extends State<MainviewTreatmentPlans> {
   @override
   Widget build(BuildContext context) {
     final referenceIdRaw = context.watch<MainviewTabProvider>().referenceId;
-    final referenceId = referenceIdRaw.replaceFirst('medicalhistories_', '');
     final referenceType = context.watch<MainviewTabProvider>().referenceType.toLowerCase();
+    String referenceId = referenceIdRaw;
+    if (referenceIdRaw.startsWith('medicalhistories_')) {
+      referenceId = referenceIdRaw.replaceFirst('medicalhistories_', '');
+    } else if (referenceIdRaw.startsWith('appointments_')) {
+      referenceId = referenceIdRaw.replaceFirst('appointments_', '');
+    }
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
